@@ -1,16 +1,16 @@
 // index.js
-require('dotenv').config();
+import 'dotenv/config';
 
 import { apiReference } from "@scalar/express-api-reference";
 
-const ServerConfig = require('./utils/serverConfig');
+import ServerConfig from './utils/serverConfig.js';
 
 // Import routes
-const usersRoutes = require('./routes/users');
-const recursoRoutes = require('./routes/recurso');
-const revisionRoutes = require('./routes/revision');
-const commentRoutes = require('./routes/comment');
-const categoryRoutes = require('./routes/category');
+import usersRoutes from './routes/users.js';
+import recursoRoutes from './routes/recurso.js';
+import revisionRoutes from './routes/revision.js';
+import commentRoutes from './routes/comment.js';
+import categoryRoutes from './routes/category.js';
 
 // Create server configuration
 const serverConfig = new ServerConfig();

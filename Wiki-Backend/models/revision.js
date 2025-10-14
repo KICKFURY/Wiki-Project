@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const RevisionSchema = new Schema({
@@ -12,4 +12,4 @@ const RevisionSchema = new Schema({
     image: { type: String, trim: true } // Imagen asociada
 }, { timestamps: true }); // Timestamps automáticos
 
-module.exports = mongoose.model('Revision', RevisionSchema);
+export default mongoose.model('Revision', RevisionSchema);

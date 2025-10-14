@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Category = require('../models/category');
-const auth = require('../middleware/auth');
+import Category from '../models/category.js';
+import auth from '../middleware/auth.js';
 
 /**
  * Obtener todas las categorías activas
@@ -88,4 +88,4 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

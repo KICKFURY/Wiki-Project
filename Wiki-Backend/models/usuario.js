@@ -1,5 +1,5 @@
-// models/Huesped.js
-const mongoose = require('mongoose');
+// models/usuario.js
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const UsuarioSchema = new Schema({
@@ -14,4 +14,4 @@ const UsuarioSchema = new Schema({
     lastActivity: { type: Date, default: Date.now } // Last activity timestamp for session management
 }, { timestamps: true });
 
-module.exports = mongoose.model('Usuario', UsuarioSchema);
+export default mongoose.model('Usuario', UsuarioSchema);

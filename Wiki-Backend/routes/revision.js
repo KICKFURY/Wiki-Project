@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Revision = require('../models/revision');
-const Recurso = require('../models/recurso');
-const auth = require('../middleware/auth'); // Assuming you have auth middleware
+import Revision from '../models/revision.js';
+import Recurso from '../models/recurso.js';
+import auth from '../middleware/auth.js'; // Assuming you have auth middleware
 
 // Get all revisions for a specific recurso
 router.get('/recurso/:recursoId', async (req, res) => {
@@ -65,4 +65,4 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

@@ -1,7 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const container = require('../utils/container');
-const { validateUserCreation, validateLogin, validateFollow, validateInvite } = require('../middleware/validation');
+import container from '../utils/container.js';
+import { validateUserCreation, validateLogin, validateFollow, validateInvite } from '../middleware/validation.js';
 
 // Get controller instance from container
 const userController = container.getUserController();
@@ -27,4 +27,4 @@ router.get('/following/:id', userController.getFollowing.bind(userController));
 
 router.post('/invite', validateInvite, userController.invite.bind(userController));
 
-module.exports = router;
+export default router;

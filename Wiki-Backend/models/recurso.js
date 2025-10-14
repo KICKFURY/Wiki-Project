@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const RecursoSchema = new Schema({
@@ -19,4 +19,4 @@ const RecursoSchema = new Schema({
     currentVersion: { type: Number, default: 1 } // Versión actual
 }, { timestamps: true }); // Timestamps automáticos
 
-module.exports = mongoose.model('Recurso', RecursoSchema);
+export default mongoose.model('Recurso', RecursoSchema);

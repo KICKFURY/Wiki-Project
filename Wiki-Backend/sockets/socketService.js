@@ -108,4 +108,4 @@ class SocketService {
   }
 }
 
-module.exports = SocketService;
+export default SocketService;

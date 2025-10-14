@@ -1,6 +1,6 @@
-const UserRepository = require('../repositories/userRepository');
-const UserService = require('../services/userService');
-const UserController = require('../controllers/userController');
+import UserRepository from '../repositories/userRepository.js';
+import UserService from '../services/userService.js';
+import UserController from '../controllers/userController.js';
 
 // Dependency Injection Container
 class Container {
@@ -34,4 +34,4 @@ class Container {
 
 const container = new Container();
 
-module.exports = container;
+export default container;

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
@@ -10,4 +10,4 @@ const CommentSchema = new Schema({
     likes: [{ type: Schema.Types.ObjectId, ref: 'Usuario' }] // Usuarios que dieron like
 }, { timestamps: true }); // Timestamps automáticos
 
-module.exports = mongoose.model('Comment', CommentSchema);
+export default mongoose.model('Comment', CommentSchema);

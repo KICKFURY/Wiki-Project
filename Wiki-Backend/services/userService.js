@@ -1,4 +1,4 @@
-const IUserService = require('../interfaces/IUserService');
+import IUserService from '../interfaces/IUserService.js';
 
 class UserService extends IUserService {
   constructor(userRepository) {
@@ -139,4 +139,4 @@ class UserService extends IUserService {
   }
 }
 
-module.exports = UserService;
+export default UserService;

@@ -56,4 +56,4 @@ class IUserController {
   }
 }
 
-module.exports = IUserController;
+export default IUserController;

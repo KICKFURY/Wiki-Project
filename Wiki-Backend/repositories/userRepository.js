@@ -1,5 +1,5 @@
-const Usuario = require('../models/usuario');
-const IUserRepository = require('../interfaces/IUserRepository');
+import Usuario from '../models/usuario.js';
+import IUserRepository from '../interfaces/IUserRepository.js';
 
 class UserRepository extends IUserRepository {
   async findById(id) {
@@ -78,4 +78,4 @@ class UserRepository extends IUserRepository {
   }
 }
 
-module.exports = UserRepository;
+export default UserRepository;

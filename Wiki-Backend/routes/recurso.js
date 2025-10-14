@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Recurso = require('../models/recurso');
-const auth = require('../middleware/auth');
+import Recurso from '../models/recurso.js';
+import auth from '../middleware/auth.js';
+import Category from '../models/category.js';
 
 
 // Listar todos los recursos con autor y categoría poblados
@@ -53,7 +54,6 @@ router.post('/', auth, async (req, res) => {
         }
 
         // Find category by name
-        const Category = require('../models/category');
         const categoryDoc = await Category.findOne({ name: category });
         if (!categoryDoc) {
             return res.status(400).json({ error: 'Categoría no encontrada' });
@@ -74,7 +74,6 @@ router.put('/:id', auth, async (req, res) => {
 
         // If category is provided as name, find the ObjectId
         if (updateData.category && typeof updateData.category === 'string') {
-            const Category = require('../models/category');
             const categoryDoc = await Category.findOne({ name: updateData.category });
             if (!categoryDoc) {
                 return res.status(400).json({ error: 'Categoría no encontrada' });
@@ -101,4 +100,4 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

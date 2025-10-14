@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Comment = require('../models/comment');
-const Recurso = require('../models/recurso');
-const auth = require('../middleware/auth');
+import Comment from '../models/comment.js';
+import Recurso from '../models/recurso.js';
+import auth from '../middleware/auth.js';
 
 // Get all comments for a specific recurso
 router.get('/recurso/:recursoId', async (req, res) => {
@@ -124,4 +124,4 @@ router.post('/:id/like', auth, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

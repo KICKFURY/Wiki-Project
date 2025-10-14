@@ -1,9 +1,9 @@
-const express = require('express');
-const cors = require('cors');
-const http = require('http');
-const socketIo = require('socket.io');
-const mongoose = require('mongoose');
-const SocketService = require('../sockets/socketService');
+import express from 'express';
+import cors from 'cors';
+import http from 'http';
+import { Server } from 'socket.io';
+import mongoose from 'mongoose';
+import SocketService from '../sockets/socketService.js';
 
 class ServerConfig {
   constructor() {
@@ -28,7 +28,7 @@ class ServerConfig {
   }
 
   setupSocketIO() {
-    this.io = socketIo(this.server, {
+    this.io = new Server(this.server, {
       cors: {
         origin: "*",
         methods: ["GET", "POST"]
@@ -72,4 +72,4 @@ class ServerConfig {
   }
 }
 
-module.exports = ServerConfig;
+export default ServerConfig;

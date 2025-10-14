@@ -91,7 +91,7 @@ const validateInvite = (req, res, next) => {
   next();
 };
 
-module.exports = {
+export {
   validateUserCreation,
   validateLogin,
   validateFollow,

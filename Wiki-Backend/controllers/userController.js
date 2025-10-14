@@ -1,4 +1,4 @@
-const IUserController = require('../interfaces/IUserController');
+import IUserController from '../interfaces/IUserController.js';
 
 class UserController extends IUserController {
     constructor(userService) {
@@ -187,4 +187,4 @@ class UserController extends IUserController {
     }
 }
 
-module.exports = UserController;
+export default UserController;

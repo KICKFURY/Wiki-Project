@@ -1,7 +1,7 @@
 // routes/huesped.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Usuario = require('../models/usuario');
+import Usuario from '../models/usuario.js';
 
 // Obtener usuarios seguidos por un usuario
 router.get('/following/:id', async (req, res) => {
@@ -237,4 +237,4 @@ router.post('/logout', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

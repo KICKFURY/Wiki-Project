@@ -56,4 +56,4 @@ class IUserService {
   }
 }
 
-module.exports = IUserService;
+export default IUserService;
