@@ -41,7 +41,13 @@ class ServerConfig {
   setupRoutes(routes) {
     routes.forEach(route => {
       this.app.use(route.path, route.router);
-    });
+//       this.app.use("/docs", apiReference({
+        //   theme: "deepSpace", // puedes cambiar a "default", "saturn", etc.
+        //   spec: {
+        //     url: "/openapi.json", // tu archivo OpenAPI
+        //   },
+        // }));
+          });
 
     // Health check
     this.app.get('/', (_, res) => res.send('API Wiki - Usuarios'));

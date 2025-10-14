@@ -1,5 +1,8 @@
 // index.js
 require('dotenv').config();
+
+import { apiReference } from "@scalar/express-api-reference";
+
 const ServerConfig = require('./utils/serverConfig');
 
 // Import routes
