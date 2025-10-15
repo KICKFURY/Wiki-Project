@@ -1,9 +1,9 @@
 // seed_with_following.js
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Usuario = require('./models/usuario');
-const Category = require('./models/category');
-const Recurso = require('./models/recurso');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import Usuario from './models/usuario.js';
+import Category from './models/category.js';
+import Recurso from './models/recurso.js';
 
 async function run() {
     await mongoose.connect(process.env.MONGO_URI);

@@ -75,7 +75,7 @@ function CreateScreen() {
   }, [params.id, params.session]);
 
   const setupSocket = async (resourceId: string) => {
-    socketRef.current = io('http://172.16.185.197:4000');
+    socketRef.current = io('https://wiki-project-back.vercel.app');
     socketRef.current.emit('join-resource', resourceId);
 
     // Get userId synchronously before setting up listeners
@@ -176,7 +176,7 @@ function CreateScreen() {
   const fetchCategories = async () => {
     setCategoriesLoading(true);
     try {
-      const baseURL = Platform.OS === 'web' ? 'http://localhost:4000/api' : 'http://172.16.185.197:4000/api';
+      const baseURL = Platform.OS === 'web' ? 'http://localhost:4000/api' : 'https://wiki-project-back.vercel.app/api';
       const response = await fetch(`${baseURL}/categories`, { mode: 'cors' });
       if (response.ok) {
         const data = await response.json();

@@ -1,10 +1,10 @@
 // seed_with_comments.js
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Usuario = require('./models/usuario');
-const Category = require('./models/category');
-const Recurso = require('./models/recurso');
-const Comment = require('./models/comment');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import Usuario from './models/usuario.js';
+import Category from './models/category.js';
+import Recurso from './models/recurso.js';
+import Comment from './models/comment.js';
 
 async function run() {
     await mongoose.connect(process.env.MONGO_URI);

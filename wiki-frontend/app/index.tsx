@@ -36,7 +36,7 @@ const LoginScreen = ({ onRegister, onLogin }: { onRegister: () => void; onLogin:
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('http://172.16.185.197:4000/api/usuarios/login', {
+      const response = await fetch('https://wiki-project-back.vercel.app/api/usuarios/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -129,7 +129,7 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
     setError('');
     setSuccess('');
     try {
-      const response = await fetch('http://172.16.185.197:4000/api/usuarios', {
+      const response = await fetch('https://wiki-project-back.vercel.app/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ dni, username, email, password, role: 'user' }),

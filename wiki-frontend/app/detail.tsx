@@ -64,7 +64,7 @@ export default function DetailScreen() {
 
   const fetchRecurso = async () => {
     try {
-      const response = await fetch(`http://172.16.185.197:4000/api/recursos/${id}`, { mode: 'cors' });
+      const response = await fetch(`https://wiki-project-back.vercel.app/api/recursos/${id}`, { mode: 'cors' });
       if (!response.ok) {
         setError('Error al cargar el recurso');
         return;
@@ -91,7 +91,7 @@ export default function DetailScreen() {
     if (!recurso || !currentUserId || !recurso.author) return;
 
     try {
-      const response = await fetch(`http://172.16.185.197:4000/api/usuarios/following/${currentUserId}`, { mode: 'cors' });
+      const response = await fetch(`https://wiki-project-back.vercel.app/api/usuarios/following/${currentUserId}`, { mode: 'cors' });
       if (response.ok) {
         const following = await response.json();
         const isFollowingAuthor = following.some((user: any) => user._id === recurso.author._id);
@@ -106,7 +106,7 @@ export default function DetailScreen() {
     if (!id) return;
     setCommentsLoading(true);
     try {
-      const response = await fetch(`http://172.16.185.197:4000/api/comments/recurso/${id}`, { mode: 'cors' });
+      const response = await fetch(`https://wiki-project-back.vercel.app/api/comments/recurso/${id}`, { mode: 'cors' });
       if (response.ok) {
         const data = await response.json();
         // Mark if current user liked each comment
@@ -133,7 +133,7 @@ export default function DetailScreen() {
       return;
     }
     try {
-      const response = await fetch('http://172.16.185.197:4000/api/comments', {
+      const response = await fetch('https://wiki-project-back.vercel.app/api/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ export default function DetailScreen() {
       return;
     }
     try {
-      const response = await fetch(`http://172.16.185.197:4000/api/comments/${commentId}/like`, {
+      const response = await fetch(`https://wiki-project-back.vercel.app/api/comments/${commentId}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,8 +205,8 @@ export default function DetailScreen() {
     if (!currentUserId || !recurso) return;
     try {
       const url = isFollowing
-        ? `http://172.16.185.197:4000/api/usuarios/${recurso.author._id}/unfollow`
-        : `http://172.16.185.197:4000/api/usuarios/${recurso.author._id}/follow`;
+        ? `https://wiki-project-back.vercel.app/api/usuarios/${recurso.author._id}/unfollow`
+        : `https://wiki-project-back.vercel.app/api/usuarios/${recurso.author._id}/follow`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
