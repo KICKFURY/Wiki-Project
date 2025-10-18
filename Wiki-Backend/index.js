@@ -1,30 +1,29 @@
-// index.js
 import 'dotenv/config';
-
-import { apiReference } from "@scalar/express-api-reference";
-
 import ServerConfig from './utils/serverConfig.js';
 
-// Import routes
+// Rutas
 import usersRoutes from './routes/users.js';
 import recursoRoutes from './routes/recurso.js';
 import revisionRoutes from './routes/revision.js';
 import commentRoutes from './routes/comment.js';
 import categoryRoutes from './routes/category.js';
 
-// Create server configuration
+import mongoose from 'mongoose'; 
+mongoose.set('strictQuery', true);
+
+
+// Swagger
+import swaggerDocs from "./swagger.js";
+
+// Crear configuración del servidor
 const serverConfig = new ServerConfig();
 
-// Setup middleware
+// Middleware, DB, Socket
 serverConfig.setupMiddleware();
-
-// Setup database
 serverConfig.setupDatabase(process.env.MONGO_URI);
-
-// Setup Socket.IO
 serverConfig.setupSocketIO();
 
-// Setup routes
+// Rutas
 const routes = [
   { path: '/api/usuarios', router: usersRoutes },
   { path: '/api/recursos', router: recursoRoutes },
@@ -34,6 +33,9 @@ const routes = [
 ];
 serverConfig.setupRoutes(routes);
 
-// Start server
+// Swagger (después de las rutas)
+swaggerDocs(serverConfig.app);
+
+// Iniciar servidor
 const PORT = process.env.PORT || 4000;
 serverConfig.start(PORT);
