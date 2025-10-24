@@ -29,6 +29,7 @@ export default function CreateScreen() {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -116,9 +117,11 @@ export default function CreateScreen() {
       quality: 0.8,
       allowsEditing: true,
       aspect: [4, 3],
+      base64: true,
     });
     if (!res.canceled && res.assets?.[0]?.uri) {
       setImageUri(res.assets[0].uri);
+      setImageBase64(res.assets[0].base64 || null);
     }
   };
 
@@ -142,7 +145,7 @@ export default function CreateScreen() {
         category,
         tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       };
-      if (imageUri) body.image = imageUri;
+      if (imageBase64) body.image = `data:image/jpeg;base64,${imageBase64}`;
       if (!isEdit) body.author = userId;
 
       const url = isEdit ? (ENDPOINTS as any).RECURSO_BY_ID(editingId) : (ENDPOINTS as any).RECURSOS;

@@ -275,7 +275,7 @@ export default function DetailScreen() {
           )}
         </View>
         {recurso.image && (
-          <Image source={{ uri: recurso.image }} style={[styles.image, { height: isMobile ? 180 : 200, marginBottom: isMobile ? 16 : 20 }]} />
+          <Image source={{ uri: recurso.image }} style={[styles.image, { maxHeight: isMobile ? 180 : 200, marginBottom: isMobile ? 16 : 20 }]} />
         )}
         <Text style={[styles.content, { fontSize: isMobile ? 14 : 16, lineHeight: isMobile ? 20 : 24, marginBottom: isMobile ? 16 : 20 }]}>{recurso.content}</Text>
         {recurso.tags && recurso.tags.length > 0 && (
@@ -356,6 +356,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 10,
     marginBottom: 20,
+    resizeMode: 'contain',
   },
   content: {
     fontSize: 16,
