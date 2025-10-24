@@ -9,7 +9,6 @@
         "seed": "node seed_with_comments.js"
     },
     "dependencies": {
-        "@scalar/express-api-reference": "^0.8.20",
         "cors": "^2.8.5",
         "dotenv": "^16.0.0",
         "express": "^4.18.2",
@@ -18,7 +17,8 @@
         "socket.io": "^4.8.1",
         "socket.io-client": "^4.8.1",
         "swagger-jsdoc": "^6.2.8",
-        "swagger-ui": "^5.29.4"
+        "swagger-ui": "^5.29.4",
+        "swagger-ui-express": "^5.0.1"
     },
     "devDependencies": {
         "nodemon": "^2.0.22"

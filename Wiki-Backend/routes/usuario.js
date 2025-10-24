@@ -1,166 +1,272 @@
 import express from 'express';
-const router = express.Router();
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import Usuario from '../models/usuario.js';
 
-// 🧭 Obtener todos los usuarios
-router.get('/', async (req, res) => {
-  try {
-    const list = await Usuario.find().sort({ username: 1 });
-    res.json(list);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+const router = express.Router();
 
-// 🔍 Obtener usuario por ID
-router.get('/:id', async (req, res) => {
-  try {
-    const h = await Usuario.findById(req.params.id);
-    if (!h) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(h);
-  } catch (err) {
-    res.status(400).json({ error: 'Id inválido' });
-  }
-});
+/**
+ * @swagger
+ * tags:
+ *   name: Usuarios
+ *   description: Endpoints para gestión de usuarios, autenticación y relaciones sociales.
+ */
 
-// 🔍 Obtener usuario por username
-router.get('/username/:username', async (req, res) => {
-  try {
-    const h = await Usuario.findOne({ username: req.params.username });
-    if (!h) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(h);
-  } catch (error) {
-    res.status(400).json({ error: 'Username inválido' });
-  }
-});
-
-// 🔍 Obtener usuario por email
-router.get('/email/:email', async (req, res) => {
-  try {
-    const h = await Usuario.findOne({ email: req.params.email });
-    if (!h) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(h);
-  } catch (error) {
-    res.status(400).json({ error: 'Email inválido' });
-  }
-});
-
-// ➕ Crear usuario
-router.post('/', async (req, res) => {
+/**
+ * @swagger
+ * /api/usuarios/register:
+ *   post:
+ *     summary: Registrar un nuevo usuario
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - dni
+ *               - username
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               dni:
+ *                 type: string
+ *                 example: "123456789"
+ *               username:
+ *                 type: string
+ *                 example: "nohemiCampos"
+ *               email:
+ *                 type: string
+ *                 example: "nohemi@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "12345"
+ *               role:
+ *                 type: string
+ *                 example: "user"
+ *     responses:
+ *       201:
+ *         description: Usuario registrado exitosamente
+ *       400:
+ *         description: Faltan datos requeridos o error de validación
+ *       409:
+ *         description: El DNI ya está registrado
+ */
+router.post('/register', async (req, res) => {
   try {
     const { dni, username, email, password, role } = req.body;
     if (!dni || !username || !email || !password || !role)
-      return res.status(400).json({ error: 'dni, username, password y role son requeridos' });
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
 
-    const exists = await Usuario.findOne({ dni });
-    if (exists) return res.status(409).json({ error: 'DNI ya registrado' });
+    const userExists = await Usuario.findOne({ dni });
+    if (userExists)
+      return res.status(409).json({ error: 'El DNI ya está registrado' });
 
-    const h = new Usuario({ dni, username, email, password, role });
-    const saved = await h.save();
-    res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new Usuario({ dni, username, email, password: hashedPassword, role });
+    const savedUser = await newUser.save();
+
+    res.status(201).json(savedUser);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// 🔐 Login
+/**
+ * @swagger
+ * /api/usuarios/login:
+ *   post:
+ *     summary: Iniciar sesión de usuario
+ *     tags: [Usuarios]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - dni
+ *               - password
+ *             properties:
+ *               dni:
+ *                 type: string
+ *                 example: "123456789"
+ *               password:
+ *                 type: string
+ *                 example: "12345"
+ *     responses:
+ *       200:
+ *         description: Inicio de sesión exitoso
+ *       400:
+ *         description: DNI o contraseña incorrectos
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'email y password son requeridos' });
+    const { dni, password } = req.body;
+    const user = await Usuario.findOne({ dni });
+    if (!user) return res.status(400).json({ error: 'Usuario no encontrado' });
 
-    const user = await Usuario.findOne({ email });
-    if (!user || user.password !== password)
-      return res.status(401).json({ error: 'Credenciales inválidas' });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ error: 'Contraseña incorrecta' });
 
-    res.json({ message: 'Login exitoso', user });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-// 🔁 Seguir / dejar de seguir
-router.post('/:id/follow', async (req, res) => {
+/**
+ * @swagger
+ * /api/usuarios:
+ *   get:
+ *     summary: Obtener todos los usuarios
+ *     tags: [Usuarios]
+ *     responses:
+ *       200:
+ *         description: Lista de todos los usuarios
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/', async (req, res) => {
+  try {
+    const users = await Usuario.find().sort({ username: 1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/usuarios/{id}:
+ *   get:
+ *     summary: Obtener un usuario por su ID
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuario encontrado
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await Usuario.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/usuarios/{id}/follow:
+ *   put:
+ *     summary: Seguir a otro usuario
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del usuario a seguir
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               followerId:
+ *                 type: string
+ *                 example: "6715babc9c6a89e49b9f556a"
+ *     responses:
+ *       200:
+ *         description: Usuario seguido correctamente
+ *       400:
+ *         description: Ya sigues a este usuario o error de validación
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.put('/:id/follow', async (req, res) => {
   try {
     const { followerId } = req.body;
-    if (!followerId) return res.status(400).json({ error: 'followerId es requerido' });
+    const user = await Usuario.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    const userToFollow = await Usuario.findById(req.params.id);
-    const follower = await Usuario.findById(followerId);
-
-    if (!userToFollow || !follower)
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-
-    if (userToFollow.followers.includes(followerId))
+    if (user.followers.includes(followerId))
       return res.status(400).json({ error: 'Ya sigues a este usuario' });
 
-    userToFollow.followers.push(followerId);
-    follower.following.push(req.params.id);
+    user.followers.push(followerId);
+    await user.save();
 
-    await userToFollow.save();
-    await follower.save();
-
-    res.json({ message: 'Usuario seguido exitosamente' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: 'Usuario seguido correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/:id/unfollow', async (req, res) => {
+/**
+ * @swagger
+ * /api/usuarios/{id}/unfollow:
+ *   put:
+ *     summary: Dejar de seguir a un usuario
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del usuario a dejar de seguir
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               followerId:
+ *                 type: string
+ *                 example: "6715babc9c6a89e49b9f556a"
+ *     responses:
+ *       200:
+ *         description: Has dejado de seguir al usuario
+ *       400:
+ *         description: No seguías a este usuario
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.put('/:id/unfollow', async (req, res) => {
   try {
     const { followerId } = req.body;
-    if (!followerId) return res.status(400).json({ error: 'followerId es requerido' });
-
-    const userToUnfollow = await Usuario.findById(req.params.id);
-    const follower = await Usuario.findById(followerId);
-
-    if (!userToUnfollow || !follower)
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-
-    userToUnfollow.followers = userToUnfollow.followers.filter(id => id.toString() !== followerId);
-    follower.following = follower.following.filter(id => id.toString() !== req.params.id);
-
-    await userToUnfollow.save();
-    await follower.save();
-
-    res.json({ message: 'Usuario dejado de seguir exitosamente' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 👥 Obtener seguidores
-router.get('/followers/:id', async (req, res) => {
-  try {
-    const user = await Usuario.findById(req.params.id).populate('followers', 'username email');
+    const user = await Usuario.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(user.followers);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
-// 💫 Obtener usuarios seguidos
-router.get('/following/:id', async (req, res) => {
-  try {
-    const user = await Usuario.findById(req.params.id).populate('following', 'username email');
-    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json(user.following);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+    if (!user.followers.includes(followerId))
+      return res.status(400).json({ error: 'No seguías a este usuario' });
 
-// ✉️ Enviar invitaciones
-router.post('/invite', async (req, res) => {
-  try {
-    const { fromUserId, toUserIds, resourceId } = req.body;
-    if (!fromUserId || !toUserIds || !resourceId)
-      return res.status(400).json({ error: 'fromUserId, toUserIds y resourceId son requeridos' });
+    user.followers = user.followers.filter(id => id.toString() !== followerId);
+    await user.save();
 
-    res.json({ message: 'Invitaciones enviadas correctamente', invited: toUserIds.length });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ message: 'Has dejado de seguir al usuario' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

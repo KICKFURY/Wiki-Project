@@ -4,7 +4,32 @@ import Comment from '../models/comment.js';
 import Recurso from '../models/recurso.js';
 import auth from '../middleware/auth.js';
 
-// Get all comments for a specific recurso
+/**
+ * @swagger
+ * tags:
+ *   name: Comments
+ *   description: API para gestionar comentarios de los recursos
+ */
+
+/**
+ * @swagger
+ * /comments/recurso/{recursoId}:
+ *   get:
+ *     summary: Obtener todos los comentarios de un recurso
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: recursoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del recurso
+ *     responses:
+ *       200:
+ *         description: Lista de comentarios del recurso
+ *       500:
+ *         description: Error en el servidor
+ */
 router.get('/recurso/:recursoId', async (req, res) => {
     try {
         const comments = await Comment.find({
@@ -23,7 +48,27 @@ router.get('/recurso/:recursoId', async (req, res) => {
     }
 });
 
-// Get a specific comment
+/**
+ * @swagger
+ * /comments/{id}:
+ *   get:
+ *     summary: Obtener un comentario específico
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del comentario
+ *     responses:
+ *       200:
+ *         description: Comentario encontrado
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error en el servidor
+ */
 router.get('/:id', async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id)
@@ -36,12 +81,40 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Create a new comment
+/**
+ * @swagger
+ * /comments:
+ *   post:
+ *     summary: Crear un nuevo comentario
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               recursoId:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               parentCommentId:
+ *                 type: string
+ *                 nullable: true
+ *     responses:
+ *       201:
+ *         description: Comentario creado exitosamente
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Recurso no encontrado
+ */
 router.post('/', auth, async (req, res) => {
     try {
         const { recursoId, content, parentCommentId } = req.body;
 
-        // Verify recurso exists
         const recurso = await Recurso.findById(recursoId);
         if (!recurso) return res.status(404).json({ message: 'Recurso not found' });
 
@@ -61,7 +134,39 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-// Update a comment (only by author)
+/**
+ * @swagger
+ * /comments/{id}:
+ *   put:
+ *     summary: Actualizar un comentario (solo por el autor)
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Comentario actualizado correctamente
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Comentario no encontrado
+ *       400:
+ *         description: Error en la solicitud
+ */
 router.put('/:id', auth, async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
@@ -81,7 +186,28 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
-// Soft delete a comment (only by author or admin)
+/**
+ * @swagger
+ * /comments/{id}:
+ *   delete:
+ *     summary: Eliminar (soft delete) un comentario (por autor o admin)
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comentario eliminado correctamente
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Comentario no encontrado
+ */
 router.delete('/:id', auth, async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
@@ -100,7 +226,28 @@ router.delete('/:id', auth, async (req, res) => {
     }
 });
 
-// Like/unlike a comment
+/**
+ * @swagger
+ * /comments/{id}/like:
+ *   post:
+ *     summary: Dar o quitar like a un comentario
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Estado de like actualizado
+ *       404:
+ *         description: Comentario no encontrado
+ *       500:
+ *         description: Error en el servidor
+ */
 router.post('/:id/like', auth, async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
@@ -110,10 +257,8 @@ router.post('/:id/like', auth, async (req, res) => {
         const likeIndex = comment.likes.indexOf(userId);
 
         if (likeIndex > -1) {
-            // Unlike
             comment.likes.splice(likeIndex, 1);
         } else {
-            // Like
             comment.likes.push(userId);
         }
 
