@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';
+import { ThemedText } from '@/components/themed-text';  
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ENDPOINTS } from '../src/constants/endpoints';
 

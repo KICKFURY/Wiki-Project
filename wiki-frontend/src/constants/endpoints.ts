@@ -30,6 +30,9 @@ export const ENDPOINTS = {
 
     // Category endpoints
     CATEGORIES: `${API_BASE_URL}/categories`,
+    // Notification endpoints
+    NOTIFICATIONS: `${API_BASE_URL}/notifications`,
+    MARK_NOTIFICATION_READ: (id: string) => `${API_BASE_URL}/notifications/${id}/read`,
 } as const;
 
 export default ENDPOINTS;

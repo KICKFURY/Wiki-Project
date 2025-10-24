@@ -220,6 +220,9 @@ function MainScreen() {
                 <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/users')}>
                     <Icon name="people" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
+                <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/notifications' as any)}>
+                    <Icon name="notifications" size={isMobile ? 24 : 28} color="#000" />
+                </TouchableOpacity>
                 <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/profile')}>
                     <Icon name="person" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
