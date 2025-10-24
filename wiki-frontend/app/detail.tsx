@@ -9,6 +9,7 @@ import {
   Alert,
   TouchableOpacity,
   TextInput,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -37,6 +38,9 @@ interface Comment {
 
 export default function DetailScreen() {
   const { id } = useLocalSearchParams();
+  const { width } = useWindowDimensions();
+  const isMobile = width < 600;
+
   const [recurso, setRecurso] = useState<Recurso | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -64,7 +68,7 @@ export default function DetailScreen() {
 
   const fetchRecurso = async () => {
     try {
-      const response = await fetch(`https://wiki-project-back.vercel.app/api/recursos/${id}`, { mode: 'cors' });
+      const response = await fetch(`http://localhost:4000/api/recursos/${id}`, { mode: 'cors' });
       if (!response.ok) {
         setError('Error al cargar el recurso');
         return;
@@ -91,7 +95,7 @@ export default function DetailScreen() {
     if (!recurso || !currentUserId || !recurso.author) return;
 
     try {
-      const response = await fetch(`https://wiki-project-back.vercel.app/api/usuarios/following/${currentUserId}`, { mode: 'cors' });
+      const response = await fetch(`http://localhost:4000/api/usuarios/following/${currentUserId}`, { mode: 'cors' });
       if (response.ok) {
         const following = await response.json();
         const isFollowingAuthor = following.some((user: any) => user._id === recurso.author._id);
@@ -106,7 +110,7 @@ export default function DetailScreen() {
     if (!id) return;
     setCommentsLoading(true);
     try {
-      const response = await fetch(`https://wiki-project-back.vercel.app/api/comments/recurso/${id}`, { mode: 'cors' });
+      const response = await fetch(`http://localhost:4000/api/comments/recurso/${id}`, { mode: 'cors' });
       if (response.ok) {
         const data = await response.json();
         // Mark if current user liked each comment
@@ -133,7 +137,7 @@ export default function DetailScreen() {
       return;
     }
     try {
-      const response = await fetch('https://wiki-project-back.vercel.app/api/comments', {
+      const response = await fetch('http://localhost:4000/api/comments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +175,7 @@ export default function DetailScreen() {
       return;
     }
     try {
-      const response = await fetch(`https://wiki-project-back.vercel.app/api/comments/${commentId}/like`, {
+      const response = await fetch(`http://localhost:4000/api/comments/${commentId}/like`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -205,8 +209,8 @@ export default function DetailScreen() {
     if (!currentUserId || !recurso) return;
     try {
       const url = isFollowing
-        ? `https://wiki-project-back.vercel.app/api/usuarios/${recurso.author._id}/unfollow`
-        : `https://wiki-project-back.vercel.app/api/usuarios/${recurso.author._id}/follow`;
+        ? `http://localhost:4000/api/usuarios/${recurso.author._id}/unfollow`
+        : `http://localhost:4000/api/usuarios/${recurso.author._id}/follow`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -247,50 +251,57 @@ export default function DetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <View style={styles.authorContainer}>
-          <View>
-            <Text style={styles.title}>{recurso.title}</Text>
-            <Text style={styles.category}>{recurso.category}</Text>
-            <Text style={styles.author}>Por {recurso.author.username}</Text>
+    <SafeAreaView style={[styles.container, { padding: isMobile ? 16 : 20 }]}>
+      <ScrollView contentContainerStyle={{ paddingBottom: isMobile ? 20 : 30 }}>
+        <View style={[styles.authorContainer, { marginBottom: isMobile ? 16 : 20 }]}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.title, { fontSize: isMobile ? 20 : 24, marginBottom: isMobile ? 8 : 10 }]}>{recurso.title}</Text>
+            <Text style={[styles.category, { fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 4 : 5 }]}>{recurso.category}</Text>
+            <Text style={[styles.author, { fontSize: isMobile ? 12 : 14, marginBottom: isMobile ? 16 : 20 }]}>Por {recurso.author.username}</Text>
           </View>
           {currentUserId && recurso.author._id !== currentUserId && (
-            <TouchableOpacity style={[styles.followButton, isFollowing && styles.followingButton]} onPress={handleFollow}>
-              <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
+            <TouchableOpacity
+              style={[
+                styles.followButton,
+                isFollowing && styles.followingButton,
+                { paddingHorizontal: isMobile ? 12 : 15, paddingVertical: isMobile ? 6 : 8, borderRadius: isMobile ? 16 : 20 }
+              ]}
+              onPress={handleFollow}
+            >
+              <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText, { fontSize: isMobile ? 12 : 14 }]}>
                 {isFollowing ? 'Siguiendo' : 'Seguir'}
               </Text>
             </TouchableOpacity>
           )}
         </View>
         {recurso.image && (
-          <Image source={{ uri: recurso.image }} style={styles.image} />
+          <Image source={{ uri: recurso.image }} style={[styles.image, { height: isMobile ? 180 : 200, marginBottom: isMobile ? 16 : 20 }]} />
         )}
-        <Text style={styles.content}>{recurso.content}</Text>
+        <Text style={[styles.content, { fontSize: isMobile ? 14 : 16, lineHeight: isMobile ? 20 : 24, marginBottom: isMobile ? 16 : 20 }]}>{recurso.content}</Text>
         {recurso.tags && recurso.tags.length > 0 && (
-          <View style={styles.tagsContainer}>
-            <Text style={styles.tagsTitle}>Etiquetas:</Text>
+          <View style={[styles.tagsContainer, { marginTop: isMobile ? 16 : 20 }]}>
+            <Text style={[styles.tagsTitle, { fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 8 : 10 }]}>Etiquetas:</Text>
             <View style={styles.tags}>
               {recurso.tags.map((tag, index) => (
-                <Text key={index} style={styles.tag}>{tag}</Text>
+                <Text key={index} style={[styles.tag, { paddingHorizontal: isMobile ? 8 : 10, paddingVertical: isMobile ? 4 : 5, marginRight: isMobile ? 8 : 10, marginBottom: isMobile ? 4 : 5, fontSize: isMobile ? 12 : 14, borderRadius: isMobile ? 12 : 15 }]}>{tag}</Text>
               ))}
             </View>
           </View>
         )}
 
         {/* Comments Section */}
-        <View style={styles.commentsSection}>
-          <Text style={styles.commentsTitle}>Comentarios</Text>
+        <View style={[styles.commentsSection, { marginTop: isMobile ? 24 : 30 }]}>
+          <Text style={[styles.commentsTitle, { fontSize: isMobile ? 18 : 20, marginBottom: isMobile ? 12 : 15 }]}>Comentarios</Text>
           {commentsLoading ? (
             <ActivityIndicator size="small" />
           ) : (
             comments.map(comment => (
-              <View key={comment._id} style={styles.commentContainer}>
-                <Text style={styles.commentAuthor}>{comment.author.username}</Text>
-                <Text style={styles.commentContent}>{comment.content}</Text>
+              <View key={comment._id} style={[styles.commentContainer, { marginBottom: isMobile ? 12 : 15, padding: isMobile ? 8 : 10, borderRadius: isMobile ? 6 : 8 }]}>
+                <Text style={[styles.commentAuthor, { marginBottom: isMobile ? 4 : 5 }]}>{comment.author.username}</Text>
+                <Text style={[styles.commentContent, { fontSize: isMobile ? 13 : 14, marginBottom: isMobile ? 8 : 10 }]}>{comment.content}</Text>
                 <View style={styles.commentActions}>
-                  <TouchableOpacity onPress={() => handleLikeComment(comment._id)}>
-                    <Text style={[styles.likeButton, comment.isLikedByCurrentUser && styles.liked]}>
+                  <TouchableOpacity onPress={() => handleLikeComment(comment._id)} style={{ minHeight: isMobile ? 44 : 44, justifyContent: 'center' }}>
+                    <Text style={[styles.likeButton, comment.isLikedByCurrentUser && styles.liked, { fontSize: isMobile ? 14 : 16 }]}>
                       {comment.isLikedByCurrentUser ? '❤️' : '🤍'} {comment.likes.length}
                     </Text>
                   </TouchableOpacity>
@@ -298,9 +309,9 @@ export default function DetailScreen() {
               </View>
             ))
           )}
-          <View style={styles.addCommentContainer}>
+          <View style={[styles.addCommentContainer, { marginTop: isMobile ? 8 : 10 }]}>
             <TextInput
-              style={styles.commentInput}
+              style={[styles.commentInput, { borderRadius: isMobile ? 6 : 8, padding: isMobile ? 8 : 10, marginBottom: isMobile ? 8 : 10, minHeight: isMobile ? 36 : 40, fontSize: isMobile ? 13 : 14 }]}
               placeholder="Escribe un comentario..."
               value={newComment}
               onChangeText={setNewComment}

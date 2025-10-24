@@ -76,7 +76,7 @@ export default function UsersScreen() {
     if (!currentUserId) return;
 
     try {
-      const response = await fetch(`https://wiki-project-back.vercel.app/api/usuarios/following/${currentUserId}`);
+      const response = await fetch(`http://localhost:4000/api/usuarios/following/${currentUserId}`);
       if (response.ok) {
         const following = await response.json();
         const followingIds = following.map((user: any) => user._id);
@@ -114,8 +114,8 @@ export default function UsersScreen() {
 
     const isFollowing = followingStatus[userId] || false;
     const url = isFollowing
-      ? `https://wiki-project-back.vercel.app/api/usuarios/${userId}/unfollow`
-      : `https://wiki-project-back.vercel.app/api/usuarios/${userId}/follow`;
+      ? `http://localhost:4000/api/usuarios/${userId}/unfollow`
+      : `http://localhost:4000/api/usuarios/${userId}/follow`;
 
     try {
       const response = await fetch(url, {

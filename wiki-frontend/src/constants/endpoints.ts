@@ -1,6 +1,14 @@
 import { Platform } from 'react-native';
 
-const API_BASE_URL = Platform.OS === 'web' ? 'http://localhost:4000/api' : 'https://wiki-project-back.vercel.app/api';
+const API_BASE_URL =
+    Platform.OS === 'web'
+        ? 'http://localhost:4000/api'
+        : 'https://wiki-project-back.vercel.app/api';
+
+// const API_BASE_URL =
+//     Platform.OS === 'web'
+//         ? 'https://wiki-project-back.vercel.app/api'
+//         : 'https://wiki-project-back.vercel.app/api';
 
 export const ENDPOINTS = {
     // Auth endpoints
@@ -13,12 +21,15 @@ export const ENDPOINTS = {
     USER_BY_ID: (id: string) => `${API_BASE_URL}/usuarios/${id}`,
     USER_FOLLOW: (targetId: string) => `${API_BASE_URL}/usuarios/${targetId}/follow`,
     USER_UNFOLLOW: (targetId: string) => `${API_BASE_URL}/usuarios/${targetId}/unfollow`,
-    USER_FOLLOWING: (userId: string) => `${API_BASE_URL}/usuarios/${userId}/following`,
+    USER_FOLLOWING: (id: string) => `${API_BASE_URL}/usuarios/following/${id}`,
     USER_INVITE: `${API_BASE_URL}/usuarios/invite`,
 
     // Recurso endpoints
     RECURSOS: `${API_BASE_URL}/recursos`,
     RECURSO_BY_ID: (id: string) => `${API_BASE_URL}/recursos/${id}`,
+
+    // Category endpoints
+    CATEGORIES: `${API_BASE_URL}/categories`,
 } as const;
 
 export default ENDPOINTS;

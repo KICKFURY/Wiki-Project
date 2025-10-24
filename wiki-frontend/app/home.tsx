@@ -9,6 +9,7 @@ import {
     FlatList,
     RefreshControl,
     Alert,
+    useWindowDimensions,
 } from 'react-native';
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -25,6 +26,9 @@ interface Recurso {
 }
 
 function HomeScreen() {
+    const { width } = useWindowDimensions();
+    const isMobile = width < 600;
+
     const [recursos, setRecursos] = React.useState<Recurso[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState('');
@@ -46,7 +50,7 @@ function HomeScreen() {
     const fetchRecursos = async () => {
         console.log('1');
         try {
-            const response = await fetch('https://wiki-project-back.vercel.app/api/recursos', { mode: 'cors' });
+            const response = await fetch('http://localhost:4000/api/recursos', { mode: 'cors' });
             const data: any[] = await response.json();
             if (response.ok) {
                 const mapped: Recurso[] = data.map(r => ({
@@ -91,7 +95,7 @@ function HomeScreen() {
                 text: 'Sí',
                 onPress: async () => {
                     try {
-                        const response = await fetch(`https://wiki-project-back.vercel.app/api/recursos/${id}`, {
+                        const response = await fetch(`http://localhost:4000/api/recursos/${id}`, {
                             method: 'DELETE',
                         });
                         if (response.ok) {
@@ -138,28 +142,27 @@ function HomeScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-            <View style={styles.searchContainer}>
-                <Icon name="search" size={24} color="gray" style={{ marginLeft: 10 }} />
+            <View style={[styles.searchContainer, { margin: isMobile ? 10 : 20 }]}>
+                <Icon name="search" size={isMobile ? 20 : 24} color="gray" style={{ marginLeft: isMobile ? 12 : 10 }} />
                 <TextInput
                     placeholder="Buscar recurso"
-                    style={styles.searchInput}
+                    style={[styles.searchInput, { fontSize: isMobile ? 16 : 16 }]}
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                 />
-                <TouchableOpacity>
-                    <Icon name="mic" size={24} color="gray" style={{ marginRight: 10 }} />
+                <TouchableOpacity style={{ minHeight: isMobile ? 44 : 44 }}>
+                    <Icon name="mic" size={isMobile ? 20 : 24} color="gray" style={{ marginRight: isMobile ? 12 : 10 }} />
                 </TouchableOpacity>
             </View>
-            <View>
-            </View>
 
-            <View style={styles.filterRow}>
+            <View style={[styles.filterRow, { marginHorizontal: isMobile ? 10 : 20, marginBottom: isMobile ? 12 : 16 }]}>
                 {filtros.map((filter) => (
                     <TouchableOpacity
                         key={filter}
                         style={[
                             styles.filterButton,
                             selectedFilter === filter && styles.filterButtonSelected,
+                            { minHeight: isMobile ? 44 : 44, paddingHorizontal: isMobile ? 12 : 15, paddingVertical: isMobile ? 8 : 6, marginRight: isMobile ? 8 : 12, borderRadius: isMobile ? 20 : 20 }
                         ]}
                         onPress={() => setSelectedFilter(filter)}
                     >
@@ -167,6 +170,7 @@ function HomeScreen() {
                             style={[
                                 styles.filterText,
                                 selectedFilter === filter && styles.filterTextSelected,
+                                { fontSize: isMobile ? 14 : 14 }
                             ]}
                         >
                             {filter}
@@ -177,17 +181,21 @@ function HomeScreen() {
             <FlatList
                 data={filteredRecursos}
                 keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 10 }}
+                contentContainerStyle={{ padding: isMobile ? 10 : 20 }}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.card} onPress={() => router.push(`/detail?id=${item.id}`)} onLongPress={() => showOptions(item)}>
+                    <TouchableOpacity
+                        style={[styles.card, { padding: isMobile ? 12 : 16, marginBottom: isMobile ? 8 : 10, borderRadius: isMobile ? 12 : 15 }]}
+                        onPress={() => router.push(`/detail?id=${item.id}`)}
+                        onLongPress={() => showOptions(item)}
+                    >
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.cardTitle}>{item.title}</Text>
-                            <Text style={styles.cardSubtitle}>
+                            <Text style={[styles.cardTitle, { fontSize: isMobile ? 16 : 18 }]}>{item.title}</Text>
+                            <Text style={[styles.cardSubtitle, { fontSize: isMobile ? 12 : 14, marginTop: isMobile ? 4 : 4 }]}>
                                 {item.category} / {item.author}
                             </Text>
                         </View>
-                        <Image source={{ uri: item.image }} style={styles.cardImage} />
+                        <Image source={{ uri: item.image }} style={[styles.cardImage, { width: isMobile ? 50 : 60, height: isMobile ? 50 : 60, borderRadius: isMobile ? 25 : 30, marginLeft: isMobile ? 12 : 12 }]} />
                     </TouchableOpacity>
                 )}
             />
@@ -196,21 +204,24 @@ function HomeScreen() {
 }
 
 function MainScreen() {
+    const { width } = useWindowDimensions();
+    const isMobile = width < 600;
+
     return (
         <View style={{ flex: 1 }}>
             <HomeScreen />
-            <View style={styles.bottomBar}>
-                <TouchableOpacity>
-                    <Icon name="home" size={28} color="#000" />
+            <View style={[styles.bottomBar, { height: isMobile ? 60 : 70 }]}>
+                <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]}>
+                    <Icon name="home" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/create')}>
-                    <Icon name="add-box" size={28} color="#000" />
+                <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/create')}>
+                    <Icon name="add-box" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/users')}>
-                    <Icon name="people" size={28} color="#000" />
+                <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/users')}>
+                    <Icon name="people" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/profile')}>
-                    <Icon name="person" size={28} color="#000" />
+                <TouchableOpacity style={[styles.navButton, { minHeight: isMobile ? 44 : 44 }]} onPress={() => router.push('/profile')}>
+                    <Icon name="person" size={isMobile ? 24 : 28} color="#000" />
                 </TouchableOpacity>
             </View>
         </View>
@@ -366,5 +377,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderTopWidth: 1,
         borderColor: '#ddd',
+        backgroundColor: '#fff',
+    },
+    navButton: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 44,
     },
 });

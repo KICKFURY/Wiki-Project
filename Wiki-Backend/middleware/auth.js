@@ -13,17 +13,18 @@ const auth = async (req, res, next) => {
             return res.status(401).json({ message: 'User not found' });
         }
 
+        // For development, skip session expiration check
         // Check session expiration (3 hours)
-        const sessionDuration = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
-        const now = new Date();
-        const lastActivity = new Date(user.lastActivity);
+        // const sessionDuration = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+        // const now = new Date();
+        // const lastActivity = new Date(user.lastActivity);
 
-        if (now - lastActivity > sessionDuration) {
-            return res.status(401).json({ message: 'Session expired. Please login again.' });
-        }
+        // if (now - lastActivity > sessionDuration) {
+        //     return res.status(401).json({ message: 'Session expired. Please login again.' });
+        // }
 
         // Update last activity
-        user.lastActivity = now;
+        user.lastActivity = new Date();
         await user.save();
 
         req.user = user;

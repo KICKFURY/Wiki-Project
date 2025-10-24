@@ -3,6 +3,7 @@ const router = express.Router();
 import Recurso from '../models/recurso.js';
 import auth from '../middleware/auth.js';
 import Category from '../models/category.js';
+import mongoose from 'mongoose';
 
 
 // Listar todos los recursos con autor y categoría poblados
@@ -22,7 +23,9 @@ router.get('/', async (req, res) => {
 // Obtener un recurso específico por ID con autor poblado
 router.get('/:id', async (req, res) => {
     try {
-        const recurso = await Recurso.findById(req.params.id).populate('author', 'username email');
+        const recurso = await Recurso.findById(req.params.id)
+            .populate('author', 'username email')
+            .populate('category', 'name');
         if (!recurso) return res.status(404).json({ error: 'Recurso no encontrado' });
         res.json(recurso);
     } catch (err) {
@@ -53,13 +56,29 @@ router.post('/', auth, async (req, res) => {
             return res.status(400).json({ error: 'title, content, category y author son requeridos' });
         }
 
-        // Find category by name
-        const categoryDoc = await Category.findOne({ name: category });
-        if (!categoryDoc) {
-            return res.status(400).json({ error: 'Categoría no encontrada' });
+        let categoryId = category;
+
+        // If category is provided as string, try to find by name first, then by ObjectId
+        if (typeof category === 'string') {
+            // Check if it's a valid ObjectId
+            if (mongoose.Types.ObjectId.isValid(category)) {
+                const categoryDoc = await Category.findById(category);
+                if (categoryDoc) {
+                    categoryId = categoryDoc._id;
+                } else {
+                    return res.status(400).json({ error: 'Categoría no encontrada por ID' });
+                }
+            } else {
+                // Find category by name
+                const categoryDoc = await Category.findOne({ name: category });
+                if (!categoryDoc) {
+                    return res.status(400).json({ error: 'Categoría no encontrada por nombre' });
+                }
+                categoryId = categoryDoc._id;
+            }
         }
 
-        const recurso = new Recurso({ title, content, category: categoryDoc._id, author, image, tags });
+        const recurso = new Recurso({ title, content, category: categoryId, author, image, tags });
         const saved = await recurso.save();
         res.status(201).json(saved);
     } catch (err) {
@@ -72,13 +91,24 @@ router.put('/:id', auth, async (req, res) => {
     try {
         const updateData = { ...req.body };
 
-        // If category is provided as name, find the ObjectId
+        // If category is provided as string, handle both name and ObjectId
         if (updateData.category && typeof updateData.category === 'string') {
-            const categoryDoc = await Category.findOne({ name: updateData.category });
-            if (!categoryDoc) {
-                return res.status(400).json({ error: 'Categoría no encontrada' });
+            // Check if it's a valid ObjectId
+            if (mongoose.Types.ObjectId.isValid(updateData.category)) {
+                const categoryDoc = await Category.findById(updateData.category);
+                if (categoryDoc) {
+                    updateData.category = categoryDoc._id;
+                } else {
+                    return res.status(400).json({ error: 'Categoría no encontrada por ID' });
+                }
+            } else {
+                // Find category by name
+                const categoryDoc = await Category.findOne({ name: updateData.category });
+                if (!categoryDoc) {
+                    return res.status(400).json({ error: 'Categoría no encontrada por nombre' });
+                }
+                updateData.category = categoryDoc._id;
             }
-            updateData.category = categoryDoc._id;
         }
 
         const updated = await Recurso.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
