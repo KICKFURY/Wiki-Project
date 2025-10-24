@@ -1,7 +1,6 @@
 import express from 'express';
 const router = express.Router();
 import Notification from '../models/notification.js';
-import auth from '../middleware/auth.js';
 
 /**
  * @swagger
@@ -57,7 +56,7 @@ import auth from '../middleware/auth.js';
  *       500:
  *         description: Error al obtener las notificaciones
  */
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { userId } = req.query;
 
@@ -97,7 +96,7 @@ router.get('/', auth, async (req, res) => {
  *       500:
  *         description: Error al actualizar la notificación
  */
-router.put('/:id/read', auth, async (req, res) => {
+router.put('/:id/read', async (req, res) => {
   try {
     const notification = await Notification.findByIdAndUpdate(
       req.params.id,
@@ -136,7 +135,7 @@ router.put('/:id/read', auth, async (req, res) => {
  *       500:
  *         description: Error al eliminar la notificación
  */
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const notification = await Notification.findByIdAndDelete(req.params.id);
 

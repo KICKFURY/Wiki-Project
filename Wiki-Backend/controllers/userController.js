@@ -185,6 +185,46 @@ class UserController extends IUserController {
             }
         }
     }
+
+    async getNotifications(req, res) {
+        try {
+            const { userId } = req.query;
+            if (!userId) {
+                return res.status(400).json({ error: 'userId es requerido' });
+            }
+
+            const notifications = await this.userService.getNotifications(userId);
+            res.json(notifications);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async markNotificationAsRead(req, res) {
+        try {
+            const result = await this.userService.markNotificationAsRead(req.params.id);
+            res.json(result);
+        } catch (error) {
+            if (error.message === 'Notificación no encontrada') {
+                res.status(404).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }
+
+    async deleteNotification(req, res) {
+        try {
+            const result = await this.userService.deleteNotification(req.params.id);
+            res.json(result);
+        } catch (error) {
+            if (error.message === 'Notificación no encontrada') {
+                res.status(404).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }
 }
 
 export default UserController;

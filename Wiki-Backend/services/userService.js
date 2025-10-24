@@ -133,9 +133,53 @@ class UserService extends IUserService {
       await this.getById(userId);
     }
 
-    // Here we can implement the logic to send notifications or save invitations in DB
-    // For now, just return success
+    // Create notifications for each invited user
+    const Notification = (await import('../models/notification.js')).default;
+    const Recurso = (await import('../models/recurso.js')).default;
+    const recurso = await Recurso.findById(resourceId);
+
+    for (const userId of toUserIds) {
+      const notification = new Notification({
+        type: 'invite',
+        message: `Te invitaron a colaborar en "${recurso.title}"`,
+        userId: userId, // User receiving the invite
+        relatedUser: fromUserId, // User who sent the invite
+        relatedResource: resourceId,
+      });
+      await notification.save();
+    }
+
     return { message: 'Invitaciones enviadas correctamente' };
+  }
+
+  async getNotifications(userId) {
+    const Notification = (await import('../models/notification.js')).default;
+    return await Notification.find({ userId })
+      .populate('relatedUser', 'username')
+      .populate('relatedResource', 'title')
+      .sort({ createdAt: -1 });
+  }
+
+  async markNotificationAsRead(notificationId) {
+    const Notification = (await import('../models/notification.js')).default;
+    const notification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { read: true },
+      { new: true }
+    );
+    if (!notification) {
+      throw new Error('Notificación no encontrada');
+    }
+    return notification;
+  }
+
+  async deleteNotification(notificationId) {
+    const Notification = (await import('../models/notification.js')).default;
+    const notification = await Notification.findByIdAndDelete(notificationId);
+    if (!notification) {
+      throw new Error('Notificación no encontrada');
+    }
+    return { message: 'Notificación eliminada' };
   }
 }
 

@@ -7,10 +7,10 @@ import recursoRoutes from './routes/recurso.js';
 import revisionRoutes from './routes/revision.js';
 import commentRoutes from './routes/comment.js';
 import categoryRoutes from './routes/category.js';
+import notificationRoutes from './routes/notification.js';
 
-import mongoose from 'mongoose'; 
+import mongoose from 'mongoose';
 mongoose.set('strictQuery', true);
-
 
 // Swagger
 import swaggerDocs from "./swagger.js";
@@ -30,6 +30,7 @@ const routes = [
   { path: '/api/revisions', router: revisionRoutes },
   { path: '/api/comments', router: commentRoutes },
   { path: '/api/categories', router: categoryRoutes },
+  { path: '/api/notifications', router: notificationRoutes },
 ];
 serverConfig.setupRoutes(routes);
 

@@ -215,6 +215,17 @@ router.put('/:id/follow', async (req, res) => {
     user.followers.push(followerId);
     await user.save();
 
+    // Create notification for the followed user
+    const Notification = (await import('../models/notification.js')).default;
+    const follower = await Usuario.findById(followerId);
+    const notification = new Notification({
+      type: 'follow',
+      message: `${follower.username} te siguió`,
+      userId: req.params.id, // The user being followed
+      relatedUser: followerId, // The user who followed
+    });
+    await notification.save();
+
     res.json({ message: 'Usuario seguido correctamente' });
   } catch (error) {
     res.status(500).json({ error: error.message });

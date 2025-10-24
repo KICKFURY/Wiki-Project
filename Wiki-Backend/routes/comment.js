@@ -128,6 +128,19 @@ router.post('/', auth, async (req, res) => {
         const savedComment = await comment.save();
         await savedComment.populate('author', 'username');
 
+        // Create notification for the resource author if not commenting on own resource
+        if (recurso.author.toString() !== req.user.id) {
+            const Notification = (await import('../models/notification.js')).default;
+            const notification = new Notification({
+                type: 'comment',
+                message: `${req.user.username} comentó en tu recurso "${recurso.title}"`,
+                userId: recurso.author, // Resource author
+                relatedUser: req.user.id, // Comment author
+                relatedResource: recursoId,
+            });
+            await notification.save();
+        }
+
         res.status(201).json(savedComment);
     } catch (error) {
         res.status(400).json({ message: error.message });

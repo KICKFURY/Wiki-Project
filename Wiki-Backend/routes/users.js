@@ -27,4 +27,9 @@ router.get('/following/:id', userController.getFollowing.bind(userController));
 
 router.post('/invite', validateInvite, userController.invite.bind(userController));
 
+// Notification routes
+router.get('/notifications', userController.getNotifications.bind(userController));
+router.put('/notifications/:id/read', userController.markNotificationAsRead.bind(userController));
+router.delete('/notifications/:id', userController.deleteNotification.bind(userController));
+
 export default router;
