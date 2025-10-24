@@ -3,6 +3,7 @@ const router = express.Router();
 import Recurso from '../models/recurso.js';
 import auth from '../middleware/auth.js';
 import Category from '../models/category.js';
+import mongoose from 'mongoose';
 
 /**
  * @swagger
@@ -86,13 +87,15 @@ router.get('/', async (req, res) => {
  *         description: ID inválido
  */
 router.get('/:id', async (req, res) => {
-  try {
-    const recurso = await Recurso.findById(req.params.id).populate('author', 'username email');
-    if (!recurso) return res.status(404).json({ error: 'Recurso no encontrado' });
-    res.json(recurso);
-  } catch (err) {
-    res.status(400).json({ error: 'Id inválido' });
-  }
+    try {
+        const recurso = await Recurso.findById(req.params.id)
+            .populate('author', 'username email')
+            .populate('category', 'name');
+        if (!recurso) return res.status(404).json({ error: 'Recurso no encontrado' });
+        res.json(recurso);
+    } catch (err) {
+        res.status(400).json({ error: 'Id inválido' });
+    }
 });
 
 /**
@@ -186,23 +189,40 @@ router.patch('/:id/view', async (req, res) => {
  *         description: Error en el servidor
  */
 router.post('/', auth, async (req, res) => {
-  try {
-    const { title, content, category, author, image, tags } = req.body;
-    if (!title || !content || !category || !author) {
-      return res.status(400).json({ error: 'title, content, category y author son requeridos' });
-    }
+    try {
+        const { title, content, category, author, image, tags } = req.body;
+        if (!title || !content || !category || !author) {
+            return res.status(400).json({ error: 'title, content, category y author son requeridos' });
+        }
 
-    const categoryDoc = await Category.findOne({ name: category });
-    if (!categoryDoc) {
-      return res.status(400).json({ error: 'Categoría no encontrada' });
-    }
+        let categoryId = category;
 
-    const recurso = new Recurso({ title, content, category: categoryDoc._id, author, image, tags });
-    const saved = await recurso.save();
-    res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        // If category is provided as string, try to find by name first, then by ObjectId
+        if (typeof category === 'string') {
+            // Check if it's a valid ObjectId
+            if (mongoose.Types.ObjectId.isValid(category)) {
+                const categoryDoc = await Category.findById(category);
+                if (categoryDoc) {
+                    categoryId = categoryDoc._id;
+                } else {
+                    return res.status(400).json({ error: 'Categoría no encontrada por ID' });
+                }
+            } else {
+                // Find category by name
+                const categoryDoc = await Category.findOne({ name: category });
+                if (!categoryDoc) {
+                    return res.status(400).json({ error: 'Categoría no encontrada por nombre' });
+                }
+                categoryId = categoryDoc._id;
+            }
+        }
+
+        const recurso = new Recurso({ title, content, category: categoryId, author, image, tags });
+        const saved = await recurso.save();
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 /**
@@ -250,21 +270,32 @@ router.post('/', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
   try {
     const updateData = { ...req.body };
+        // If category is provided as string, handle both name and ObjectId
+        if (updateData.category && typeof updateData.category === 'string') {
+            // Check if it's a valid ObjectId
+            if (mongoose.Types.ObjectId.isValid(updateData.category)) {
+                const categoryDoc = await Category.findById(updateData.category);
+                if (categoryDoc) {
+                    updateData.category = categoryDoc._id;
+                } else {
+                    return res.status(400).json({ error: 'Categoría no encontrada por ID' });
+                }
+            } else {
+                // Find category by name
+                const categoryDoc = await Category.findOne({ name: updateData.category });
+                if (!categoryDoc) {
+                    return res.status(400).json({ error: 'Categoría no encontrada por nombre' });
+                }
+                updateData.category = categoryDoc._id;
+            }
+        }
 
-    if (updateData.category && typeof updateData.category === 'string') {
-      const categoryDoc = await Category.findOne({ name: updateData.category });
-      if (!categoryDoc) {
-        return res.status(400).json({ error: 'Categoría no encontrada' });
-      }
-      updateData.category = categoryDoc._id;
+        const updated = await Recurso.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+        if (!updated) return res.status(404).json({ error: 'Recurso no encontrado' });
+        res.json(updated);
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
-
-    const updated = await Recurso.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ error: 'Recurso no encontrado' });
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
 });
 
 /**
