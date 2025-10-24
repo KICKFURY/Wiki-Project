@@ -22,7 +22,7 @@ interface Recurso {
   _id: string;
   title: string;
   content: string;
-  category: string;
+  category: { _id: string; name: string };
   author: { _id: string; username: string };
   image: string;
   tags: string[];
@@ -256,7 +256,7 @@ export default function DetailScreen() {
         <View style={[styles.authorContainer, { marginBottom: isMobile ? 16 : 20 }]}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.title, { fontSize: isMobile ? 20 : 24, marginBottom: isMobile ? 8 : 10 }]}>{recurso.title}</Text>
-            <Text style={[styles.category, { fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 4 : 5 }]}>{recurso.category}</Text>
+            <Text style={[styles.category, { fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 4 : 5 }]}>{recurso.category.name}</Text>
             <Text style={[styles.author, { fontSize: isMobile ? 12 : 14, marginBottom: isMobile ? 16 : 20 }]}>Por {recurso.author.username}</Text>
           </View>
           {currentUserId && recurso.author._id !== currentUserId && (

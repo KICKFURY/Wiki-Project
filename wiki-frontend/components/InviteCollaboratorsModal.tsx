@@ -87,7 +87,7 @@ export default function InviteCollaboratorsModal({ visible, onClose, resourceId,
 
       const resp = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'userId': fromUserId },
         body: JSON.stringify({
           fromUserId,
           toUserIds: selectedIds,

@@ -3,12 +3,12 @@ import { Platform } from 'react-native';
 const API_BASE_URL =
     Platform.OS === 'web'
         ? 'http://localhost:4000/api'
-        : 'https://wiki-project-back.vercel.app/api';
+        : 'http://localhost:4000/api';
 
 // const API_BASE_URL =
 //     Platform.OS === 'web'
-//         ? 'https://wiki-project-back.vercel.app/api'
-//         : 'https://wiki-project-back.vercel.app/api';
+//         ? 'http://localhost:4000/api'
+//         : 'http://localhost:4000/api';
 
 export const ENDPOINTS = {
     // Auth endpoints

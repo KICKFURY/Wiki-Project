@@ -81,7 +81,7 @@ El proyecto es un monorepo con dos carpetas principales:
 - **Desarrollo**: `npx expo start` para iOS/Android/web. Reset project via script.
 
 ### Integración Full-Stack
-- Frontend llama backend via fetch (e.g., `https://wiki-project-back.vercel.app/api/...` o localhost:4000).
+- Frontend llama backend via fetch (e.g., `http://localhost:4000/api/...` o localhost:4000).
 - Real-time: Sockets conectan a backend para colaboración.
 - DB: MongoDB Atlas (via MONGO_URI en .env).
 

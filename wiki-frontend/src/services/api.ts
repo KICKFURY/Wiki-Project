@@ -7,7 +7,7 @@ export class ApiClient {
     private baseURL: string;
 
     constructor(baseURL?: string) {
-        this.baseURL = baseURL || (Platform.OS === 'web' ? 'http://localhost:4000/api' : 'https://wiki-project-back.vercel.app/api');
+        this.baseURL = baseURL || (Platform.OS === 'web' ? 'http://localhost:4000/api' : 'http://localhost:4000/api');
     }
 
     private async getAuthHeaders(): Promise<Record<string, string>> {

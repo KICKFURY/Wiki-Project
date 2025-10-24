@@ -42,7 +42,7 @@ export default function ProfileScreen() {
         }
 
         // Load user data
-        const userResponse = await fetch(`https://wiki-project-back.vercel.app/api/usuarios/${userId}`);
+        const userResponse = await fetch(`http://localhost:4000/api/usuarios/${userId}`);
         if (!userResponse.ok) {
           Alert.alert('Error', 'Failed to load user data');
           return;
@@ -51,7 +51,7 @@ export default function ProfileScreen() {
         setUser(userData);
 
         // Load user's recursos
-        const recursosResponse = await fetch('https://wiki-project-back.vercel.app/api/recursos');
+        const recursosResponse = await fetch('http://localhost:4000/api/recursos');
         if (recursosResponse.ok) {
           const allRecursos = await recursosResponse.json();
           const userRecursos = allRecursos.filter((recurso: any) => recurso.author._id === userId);

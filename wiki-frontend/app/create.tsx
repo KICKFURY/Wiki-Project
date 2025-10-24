@@ -150,7 +150,7 @@ export default function CreateScreen() {
 
       const resp = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'userId': userId },
         body: JSON.stringify(body),
       });
 
@@ -162,10 +162,8 @@ export default function CreateScreen() {
         Alert.alert('Éxito', isEdit ? 'Recurso actualizado correctamente' : 'Recurso creado con éxito');
         if (!isEdit && result._id) {
           setEditingId(result._id);
-          setInviteVisible(true);
-        } else {
-          router.push('/home');
         }
+        router.push('/home');
       }
     } catch (err) {
       console.error('Error al crear/actualizar', err);

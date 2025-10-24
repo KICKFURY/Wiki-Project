@@ -46,7 +46,7 @@ function HomeScreen() {
     const fetchRecursos = async () => {
         console.log('1');
         try {
-            const response = await fetch('https://wiki-project-back.vercel.app/api/recursos', { mode: 'cors' });
+            const response = await fetch('http://localhost:4000/api/recursos', { mode: 'cors' });
             const data: any[] = await response.json();
             if (response.ok) {
                 const mapped: Recurso[] = data.map(r => ({
@@ -91,7 +91,7 @@ function HomeScreen() {
                 text: 'Sí',
                 onPress: async () => {
                     try {
-                        const response = await fetch(`https://wiki-project-back.vercel.app/api/recursos/${id}`, {
+                        const response = await fetch(`http://localhost:4000/api/recursos/${id}`, {
                             method: 'DELETE',
                         });
                         if (response.ok) {
