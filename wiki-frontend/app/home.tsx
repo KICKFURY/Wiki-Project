@@ -371,6 +371,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '500',
     },
+    bottomBar: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        paddingVertical: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#e9ecef',
+        paddingBottom: 20,
+    },
 });
 
 export default HomeScreen;
