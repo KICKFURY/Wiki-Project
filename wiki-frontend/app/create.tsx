@@ -21,12 +21,11 @@ import { Picker } from '@react-native-picker/picker';
 import { Input } from '@/components/ui/input';
 import InviteCollaboratorsModal from '@/components/InviteCollaboratorsModal';
 import { ENDPOINTS } from '../src/constants/endpoints';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
 
 export default function CreateScreen() {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const params = route.params as { id?: string };
+  const params = useLocalSearchParams();
+  const id = params.id as string | undefined;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -45,7 +44,7 @@ export default function CreateScreen() {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [params?.id]);
+  }, [id]);
 
   const initScreen = async () => {
     await loadCategories();
@@ -55,11 +54,11 @@ export default function CreateScreen() {
       return;
     }
 
-    if (params?.id) {
+    if (id) {
       setIsEdit(true);
-      setEditingId(params.id);
-      await loadRecurso(params.id);
-      setupSocket(params.id, userId);
+      setEditingId(id);
+      await loadRecurso(id);
+      setupSocket(id, userId);
     } else {
       setIsEdit(false);
     }
@@ -148,7 +147,6 @@ export default function CreateScreen() {
         tags: tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : [],
       };
       if (imageBase64) body.image = `data:image/jpeg;base64,${imageBase64}`;
-      if (!isEdit) body.author = userId;
 
       const url = isEdit ? (ENDPOINTS as any).RECURSO_BY_ID(editingId) : (ENDPOINTS as any).RECURSOS;
       const method = isEdit ? 'PUT' : 'POST';
@@ -162,13 +160,13 @@ export default function CreateScreen() {
       const result = await resp.json();
       if (!resp.ok) {
         console.error('Error:', result);
-        Alert.alert('Error', result.message || 'No se pudo guardar el recurso');
+        Alert.alert('Error', result.error || result.message || 'No se pudo guardar el recurso');
       } else {
         Alert.alert('Éxito', isEdit ? 'Recurso actualizado correctamente' : 'Recurso creado con éxito');
         if (!isEdit && result._id) {
           setEditingId(result._id);
         }
-        navigation.navigate('Home' as never);
+        router.push('/home');
       }
     } catch (err) {
       console.error('Error al crear/actualizar', err);
@@ -228,7 +226,7 @@ export default function CreateScreen() {
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>{isEdit ? 'Actualizar' : 'Crear'}</Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnOutline} onPress={() => navigation.goBack()} disabled={loading}>
+            <TouchableOpacity style={styles.btnOutline} onPress={() => router.push('/home')} disabled={loading}>
               <Text style={styles.btnOutlineText}>Cancelar</Text>
             </TouchableOpacity>
           </View>

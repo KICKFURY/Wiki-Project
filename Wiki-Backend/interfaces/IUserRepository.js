@@ -3,6 +3,10 @@ class IUserRepository {
     throw new Error('Method not implemented');
   }
 
+  async findByDni(dni) {
+    throw new Error('Method not implemented');
+  }
+
   async findByIdWithFollowing(id) {
     throw new Error('Method not implemented');
   }

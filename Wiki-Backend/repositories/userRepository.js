@@ -6,6 +6,10 @@ class UserRepository extends IUserRepository {
     return Usuario.findById(id);
   }
 
+  async findByDni(dni) {
+    return Usuario.findOne({ dni });
+  }
+
   async findByIdWithFollowing(id) {
     return Usuario.findById(id).populate('following', 'username email');
   }

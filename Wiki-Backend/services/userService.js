@@ -34,7 +34,7 @@ class UserService extends IUserService {
     const { dni, username, email } = userData;
 
     // Check if DNI already exists
-    const existingDni = await this.userRepository.findById(dni);
+    const existingDni = await this.userRepository.findByDni(dni);
     if (existingDni) {
       throw new Error('DNI ya registrado');
     }

@@ -15,8 +15,8 @@ import {
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Recurso {
     id: string;
@@ -27,10 +27,8 @@ interface Recurso {
 }
 
 function HomeScreen() {
-    const navigation = useNavigation();
     const { width } = useWindowDimensions();
     const isMobile = width < 600;
-
     const [recursos, setRecursos] = React.useState<Recurso[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState('');
@@ -38,16 +36,23 @@ function HomeScreen() {
     const [selectedFilter, setSelectedFilter] = React.useState('Popular');
     const [searchQuery, setSearchQuery] = React.useState('');
     const filtros = ['Popular', 'Tecnologia', 'Educacion', 'Ciencia', 'Arte', 'Historia', 'Deportes', 'Otro'];
+    // const navigation = useNavigation(); // Not needed with expo-router
 
     React.useEffect(() => {
+        checkLoginStatus();
         fetchRecursos();
     }, []);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchRecursos();
-        }, [])
-    );
+    const checkLoginStatus = async () => {
+        try {
+            const userId = await AsyncStorage.getItem('userId');
+            if (!userId) {
+                router.replace('/');
+            }
+        } catch (error) {
+            console.error('Error checking login status:', error);
+        }
+    };
 
     const fetchRecursos = async () => {
         console.log('1');
@@ -84,7 +89,7 @@ function HomeScreen() {
             'Opciones',
             '¿Qué deseas hacer?',
             [
-                { text: 'Editar', onPress: () => (navigation as any).navigate('Create', { id: item.id }) },
+                { text: 'Editar', onPress: () => router.push(`/create?id=${item.id}`) },
                 { text: 'Eliminar', onPress: () => handleDelete(item.id) },
                 { text: 'Cancelar', style: 'cancel' },
             ]
@@ -199,7 +204,7 @@ function HomeScreen() {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.card}
-                        onPress={() => (navigation as any).navigate('Detail', { id: item.id })}
+                        onPress={() => router.push(`/detail?id=${item.id}`)}
                         onLongPress={() => showOptions(item)}
                         activeOpacity={0.8}
                     >

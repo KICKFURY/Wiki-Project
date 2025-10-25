@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { useAuth } from '@/src/hooks/useAuth';
 
 interface User {
   _id: string;
@@ -26,8 +25,7 @@ interface Recurso {
 }
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
-  const { user: authUser, logout } = useAuth();
+  // const navigation = useNavigation();
   const [user, setUser] = useState<User | null>(null);
   const [userRecursos, setUserRecursos] = useState<Recurso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,8 +35,7 @@ export default function ProfileScreen() {
       try {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) {
-          Alert.alert('Error', 'No user logged in');
-          navigation.navigate('Home' as never);
+          router.replace('/');
           return;
         }
 
@@ -67,7 +64,7 @@ export default function ProfileScreen() {
     loadUserData();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert(
       'Cerrar sesión',
       '¿Estás seguro de que quieres cerrar sesión?',
@@ -77,8 +74,13 @@ export default function ProfileScreen() {
           text: 'Cerrar sesión',
           style: 'destructive',
           onPress: async () => {
-            await logout();
-            navigation.navigate('Home' as never);
+            try {
+              await AsyncStorage.removeItem('userId');
+              // Navigate directly to login screen
+              router.replace('/');
+            } catch (error) {
+              console.error('Error during logout:', error);
+            }
           },
         },
       ]
@@ -119,13 +121,11 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.push('/home')}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil de usuario</Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <IconSymbol name="rectangle.portrait.and.arrow.right" size={24} color="#000" />
-        </TouchableOpacity>
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -196,6 +196,14 @@ export default function ProfileScreen() {
           ) : (
             <Text style={styles.noArticles}>No hay artículos creados aún</Text>
           )}
+        </View>
+
+        {/* Logout Button */}
+        <View style={styles.logoutSection}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <IconSymbol name="rectangle.portrait.and.arrow.right" size={20} color="#fff" />
+            <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -286,7 +294,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     backgroundColor: '#f8f8f8',
-    marginBottom: 80, // Space for bottom nav
+    marginBottom: 20,
   },
   topTitle: {
     fontWeight: '600',
@@ -325,5 +333,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     fontStyle: 'italic',
+  },
+  logoutSection: {
+    marginHorizontal: 20,
+    marginBottom: 40,
+  },
+  logoutButton: {
+    backgroundColor: '#dc3545',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    gap: 10,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

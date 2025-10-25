@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -26,21 +26,23 @@ interface User {
 }
 
 export default function UsersScreen() {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [followingStatus, setFollowingStatus] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
-    loadCurrentUser();
+    const initialize = async () => {
+      const userId = await loadCurrentUser();
+      if (userId) {
+        await fetchUsers();
+      } else {
+        router.replace('/');
+      }
+    };
+    initialize();
   }, []);
-
-  useEffect(() => {
-    if (currentUserId) {
-      fetchUsers();
-    }
-  }, [currentUserId]);
 
   useEffect(() => {
     if (currentUserId && users.length > 0) {
@@ -48,12 +50,14 @@ export default function UsersScreen() {
     }
   }, [currentUserId, users]);
 
-  const loadCurrentUser = async () => {
+  const loadCurrentUser = async (): Promise<string | null> => {
     try {
       const userId = await AsyncStorage.getItem('userId');
       setCurrentUserId(userId);
+      return userId;
     } catch (error) {
       console.error('Error loading current user:', error);
+      return null;
     }
   };
 
@@ -194,7 +198,7 @@ export default function UsersScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.push('/home')}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Usuarios</Text>

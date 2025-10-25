@@ -190,9 +190,10 @@ router.patch('/:id/view', async (req, res) => {
  */
 router.post('/', auth, async (req, res) => {
     try {
-        const { title, content, category, author, image, tags } = req.body;
-        if (!title || !content || !category || !author) {
-            return res.status(400).json({ error: 'title, content, category y author son requeridos' });
+        const { title, content, category, image, tags } = req.body;
+        const author = req.user._id;
+        if (!title || !content || !category) {
+            return res.status(400).json({ error: 'title, content y category son requeridos' });
         }
 
         let categoryId = category;

@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { router, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -37,9 +37,8 @@ interface Comment {
 }
 
 export default function DetailScreen() {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const { id } = route.params as { id: string };
+  const params = useLocalSearchParams();
+  const id = params.id as string;
   const { width } = useWindowDimensions();
   const isMobile = width < 600;
 
