@@ -9,10 +9,10 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
-import { ThemedText } from '@/components/themed-text';  
+import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { ENDPOINTS } from '../src/constants/endpoints';
 
@@ -26,6 +26,7 @@ interface User {
 }
 
 export default function UsersScreen() {
+  const navigation = useNavigation();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -193,7 +194,7 @@ export default function UsersScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Usuarios</Text>
@@ -207,19 +208,6 @@ export default function UsersScreen() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/home')}>
-          <IconSymbol name="house.fill" size={28} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/create')}>
-          <IconSymbol name="plus.circle.fill" size={40} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/profile')}>
-          <IconSymbol name="person.fill" size={28} color="#287bff" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -306,17 +294,5 @@ const styles = StyleSheet.create({
   },
   followingButtonText: {
     color: '#fff',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopWidth: 0.5,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

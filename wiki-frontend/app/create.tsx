@@ -21,10 +21,12 @@ import { Picker } from '@react-native-picker/picker';
 import { Input } from '@/components/ui/input';
 import InviteCollaboratorsModal from '@/components/InviteCollaboratorsModal';
 import { ENDPOINTS } from '../src/constants/endpoints';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export default function CreateScreen() {
-  const params = useLocalSearchParams();
+  const navigation = useNavigation();
+  const route = useRoute();
+  const params = route.params as { id?: string };
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -43,7 +45,7 @@ export default function CreateScreen() {
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [params.id]);
+  }, [params?.id]);
 
   const initScreen = async () => {
     await loadCategories();
@@ -53,11 +55,11 @@ export default function CreateScreen() {
       return;
     }
 
-    if (params.id) {
+    if (params?.id) {
       setIsEdit(true);
-      setEditingId(params.id as string);
-      await loadRecurso(params.id as string);
-      setupSocket(params.id as string, userId);
+      setEditingId(params.id);
+      await loadRecurso(params.id);
+      setupSocket(params.id, userId);
     } else {
       setIsEdit(false);
     }
@@ -166,7 +168,7 @@ export default function CreateScreen() {
         if (!isEdit && result._id) {
           setEditingId(result._id);
         }
-        router.push('/home');
+        navigation.navigate('Home' as never);
       }
     } catch (err) {
       console.error('Error al crear/actualizar', err);
@@ -226,7 +228,7 @@ export default function CreateScreen() {
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>{isEdit ? 'Actualizar' : 'Crear'}</Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnOutline} onPress={() => router.back()} disabled={loading}>
+            <TouchableOpacity style={styles.btnOutline} onPress={() => navigation.goBack()} disabled={loading}>
               <Text style={styles.btnOutlineText}>Cancelar</Text>
             </TouchableOpacity>
           </View>

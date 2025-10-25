@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -26,6 +26,7 @@ interface Recurso {
 }
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const { user: authUser, logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [userRecursos, setUserRecursos] = useState<Recurso[]>([]);
@@ -37,7 +38,7 @@ export default function ProfileScreen() {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) {
           Alert.alert('Error', 'No user logged in');
-          router.push('/');
+          navigation.navigate('Home' as never);
           return;
         }
 
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            router.push('/');
+            navigation.navigate('Home' as never);
           },
         },
       ]
@@ -118,7 +119,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil de usuario</Text>
@@ -197,19 +198,6 @@ export default function ProfileScreen() {
           )}
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/home')}>
-          <IconSymbol name="house.fill" size={28} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/create')}>
-          <IconSymbol name="plus.circle.fill" size={40} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
-          <IconSymbol name="person.fill" size={28} color="#287bff" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -337,21 +325,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     fontStyle: 'italic',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopWidth: 0.5,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

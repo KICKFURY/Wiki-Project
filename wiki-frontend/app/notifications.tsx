@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -33,6 +33,7 @@ interface Notification {
 }
 
 export default function NotificationsScreen() {
+  const navigation = useNavigation();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -99,10 +100,10 @@ export default function NotificationsScreen() {
     // Navigate based on notification type
     if (notification.type === 'follow' && notification.relatedUser) {
       // Navigate to user profile
-      router.push(`/users?id=${notification.relatedUser._id}` as any);
+      (navigation as any).navigate('Users', { id: notification.relatedUser._id });
     } else if ((notification.type === 'like' || notification.type === 'comment') && notification.relatedResource) {
       // Navigate to resource detail
-      router.push(`/detail?id=${notification.relatedResource._id}` as any);
+      (navigation as any).navigate('Detail', { id: notification.relatedResource._id });
     }
   };
 
@@ -176,7 +177,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notificaciones</Text>
@@ -197,19 +198,6 @@ export default function NotificationsScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/home')}>
-          <IconSymbol name="house.fill" size={28} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/create')}>
-          <IconSymbol name="plus.circle.fill" size={40} color="#000" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/profile')}>
-          <IconSymbol name="person.fill" size={28} color="#287bff" />
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }
@@ -296,17 +284,5 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 16,
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 15,
-    borderTopWidth: 0.5,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
