@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
@@ -180,64 +180,66 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/images/icon.jpg')} style={styles.logo} />
-      <Text style={styles.title}>Registrarse</Text>
-      <Text style={styles.label}>DNI</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="DNI"
-        placeholderTextColor="#999"
-        keyboardType="numeric"
-        value={dni}
-        onChangeText={setDni}
-      />
-      <Text style={styles.label}>Nombre de usuario</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre de usuario"
-        placeholderTextColor="#999"
-        autoCapitalize="none"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <Text style={styles.label}>Correo electrónico</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        placeholderTextColor="#999"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <Text style={styles.label}>Contraseña</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="********"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+    <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <View style={styles.container}>
+        <Image source={require('../assets/images/icon.jpg')} style={styles.logo} />
+        <Text style={styles.title}>Registrarse</Text>
+        <Text style={styles.label}>DNI</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="DNI"
+          placeholderTextColor="#999"
+          keyboardType="numeric"
+          value={dni}
+          onChangeText={setDni}
+        />
+        <Text style={styles.label}>Nombre de usuario</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre de usuario"
+          placeholderTextColor="#999"
+          autoCapitalize="none"
+          value={username}
+          onChangeText={setUsername}
+        />
+        <Text style={styles.label}>Correo electrónico</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
+          placeholderTextColor="#999"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <Text style={styles.label}>Contraseña</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="********"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-      <TouchableOpacity style={styles.imagePicker} onPress={pickProfileImage}>
-        <Text style={{ color: '#2563EB', fontWeight: '600' }}>
-          {profileImageUri ? 'Cambiar imagen de perfil' : 'Seleccionar imagen de perfil'}
-        </Text>
-      </TouchableOpacity>
-      {profileImageUri ? <Image source={{ uri: profileImageUri }} style={styles.profileImagePreview} /> : null}
+        <TouchableOpacity style={styles.imagePicker} onPress={pickProfileImage}>
+          <Text style={{ color: '#2563EB', fontWeight: '600' }}>
+            {profileImageUri ? 'Cambiar imagen de perfil' : 'Seleccionar imagen de perfil'}
+          </Text>
+        </TouchableOpacity>
+        {profileImageUri ? <Image source={{ uri: profileImageUri }} style={styles.profileImagePreview} /> : null}
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {success ? <Text style={styles.success}>{success}</Text> : null}
-      <View style={styles.buttonRow}>
-        <TouchableOpacity style={[styles.button, styles.buttonGray]} onPress={handleRegisterPress} disabled={loading}>
-          <Text style={styles.buttonTextBlack}>{loading ? 'Registrando...' : 'Registrar'}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.buttonBlue]} onPress={onBackToLogin}>
-          <Text style={styles.buttonTextWhite}>Volver al Login</Text>
-        </TouchableOpacity>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        {success ? <Text style={styles.success}>{success}</Text> : null}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={[styles.button, styles.buttonGray]} onPress={handleRegisterPress} disabled={loading}>
+            <Text style={styles.buttonTextBlack}>{loading ? 'Registrando...' : 'Registrar'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.buttonBlue]} onPress={onBackToLogin}>
+            <Text style={styles.buttonTextWhite}>Volver al Login</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -276,6 +278,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 30, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' },
+  scrollContainer: { flexGrow: 1, justifyContent: 'center' },
   logo: { width: 80, height: 80, marginBottom: 20 },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 30 },
   label: { alignSelf: 'flex-start', fontWeight: '600', marginBottom: 5, color: '#000' },
