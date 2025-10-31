@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+// @ts-ignore
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,9 +31,11 @@ interface User {
 export default function UsersScreen() {
   // const navigation = useNavigation();
   const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [followingStatus, setFollowingStatus] = useState<{ [key: string]: boolean }>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const initialize = async () => {
@@ -49,6 +54,13 @@ export default function UsersScreen() {
       loadFollowingStatus(users);
     }
   }, [currentUserId, users]);
+
+  useEffect(() => {
+    const filtered = users.filter(user =>
+      user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+  }, [users, searchQuery]);
 
   const loadCurrentUser = async (): Promise<string | null> => {
     try {
@@ -205,8 +217,20 @@ export default function UsersScreen() {
         <View style={{ width: 24 }} />
       </View>
 
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Icon name="search" size={24} color="#666" style={styles.searchIcon} />
+        <TextInput
+          placeholder="Buscar usuarios..."
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor="#999"
+        />
+      </View>
+
       <FlatList
-        data={users}
+        data={filteredUsers}
         renderItem={renderUser}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.listContainer}
@@ -238,6 +262,24 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginVertical: 12,
+    backgroundColor: '#f1f3f4',
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
   },
   listContainer: {
     padding: 20,
