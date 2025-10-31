@@ -225,6 +225,24 @@ class UserController extends IUserController {
             }
         }
     }
+
+    async uploadProfileImage(req, res) {
+        try {
+            const { imageBase64 } = req.body;
+            if (!imageBase64) {
+                return res.status(400).json({ error: 'imageBase64 es requerido' });
+            }
+
+            const result = await this.userService.uploadProfileImage(req.params.id, imageBase64);
+            res.json(result);
+        } catch (error) {
+            if (error.message === 'Usuario no encontrado') {
+                res.status(404).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }
 }
 
 export default UserController;

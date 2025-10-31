@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -26,6 +27,7 @@ interface User {
   role: string;
   followers: string[];
   following: string[];
+  profileImage?: string;
 }
 
 export default function UsersScreen() {
@@ -173,9 +175,13 @@ export default function UsersScreen() {
     return (
       <View style={styles.userCard}>
         <View style={styles.userInfo}>
-          <View style={styles.avatar}>
-            <IconSymbol name="person.fill" size={30} color="#666" />
-          </View>
+          {item.profileImage ? (
+            <Image source={{ uri: `data:image/jpeg;base64,${item.profileImage}` }} style={styles.avatarImage} />
+          ) : (
+            <View style={styles.avatar}>
+              <IconSymbol name="person.fill" size={30} color="#666" />
+            </View>
+          )}
           <View style={styles.userDetails}>
             <Text style={styles.username}>{item.username}</Text>
             <Text style={styles.role}>{item.role === 'admin' ? 'Administrador' : 'Contribuidor'}</Text>
@@ -306,6 +312,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 15,
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   userDetails: {
     flex: 1,

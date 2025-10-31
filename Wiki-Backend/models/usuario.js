@@ -11,7 +11,8 @@ const UsuarioSchema = new Schema({
     followers: [{ type: Schema.Types.ObjectId, ref: 'Usuario' }],
     following: [{ type: Schema.Types.ObjectId, ref: 'Usuario' }],
     likes: [{ type: Schema.Types.ObjectId, ref: 'Recurso' }], // Resources liked by the user
-    lastActivity: { type: Date, default: Date.now } // Last activity timestamp for session management
+    lastActivity: { type: Date, default: Date.now }, // Last activity timestamp for session management
+    profileImage: { type: String } // Base64 encoded profile image
 }, { timestamps: true });
 
 export default mongoose.model('Usuario', UsuarioSchema);

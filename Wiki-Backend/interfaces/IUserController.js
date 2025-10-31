@@ -54,6 +54,10 @@ class IUserController {
   async invite(req, res) {
     throw new Error('Method not implemented');
   }
+
+  async uploadProfileImage(req, res) {
+    throw new Error('Method not implemented');
+  }
 }
 
 export default IUserController;

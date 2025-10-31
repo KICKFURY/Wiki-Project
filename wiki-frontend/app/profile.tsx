@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator, ScrollView, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as ImagePicker from 'expo-image-picker';
 
 interface User {
   _id: string;
@@ -15,6 +16,7 @@ interface User {
   followers?: string[];
   following?: string[];
   likes?: string[];
+  profileImage?: string;
 }
 
 interface Recurso {
@@ -87,6 +89,56 @@ export default function ProfileScreen() {
     );
   };
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Necesitamos permisos para acceder a la galería');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets[0].base64) {
+      await uploadProfileImage(result.assets[0].base64);
+    }
+  };
+
+  const uploadProfileImage = async (base64Image: string) => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      if (!userId) return;
+
+      const response = await fetch(`http://localhost:4000/api/usuarios/${userId}/upload-profile-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageBase64: base64Image }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al subir la imagen');
+      }
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+        Alert.alert('Éxito', 'Imagen de perfil actualizada');
+      } else {
+        Alert.alert('Error', 'No se pudo actualizar la imagen de perfil');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Error al subir la imagen');
+    }
+  };
+
   const getTopArticles = () => {
     return userRecursos
       .sort((a, b) => b.viewCount - a.viewCount)
@@ -132,10 +184,14 @@ export default function ProfileScreen() {
         {/* Profile Picture & Name */}
         <View style={styles.profileSection}>
           <View style={styles.profilePicContainer}>
-            <View style={styles.profilePic}>
-              <IconSymbol name="person.fill" size={50} color="#666" />
-            </View>
-            <TouchableOpacity style={styles.cameraIcon}>
+            {user.profileImage ? (
+              <Image source={{ uri: `data:image/jpeg;base64,${user.profileImage}` }} style={styles.profilePic} />
+            ) : (
+              <View style={styles.profilePic}>
+                <IconSymbol name="person.fill" size={50} color="#666" />
+              </View>
+            )}
+            <TouchableOpacity style={styles.cameraIcon} onPress={pickImage}>
               <IconSymbol name="camera.fill" size={18} color="#555" />
             </TouchableOpacity>
           </View>
@@ -239,6 +295,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
   },
   cameraIcon: {
     position: 'absolute',

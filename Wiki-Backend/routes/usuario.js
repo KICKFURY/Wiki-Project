@@ -281,4 +281,61 @@ router.put('/:id/unfollow', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/usuarios/{id}/upload-profile-image:
+ *   post:
+ *     summary: Subir imagen de perfil para un usuario
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID del usuario
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - imageBase64
+ *             properties:
+ *               imageBase64:
+ *                 type: string
+ *                 description: Imagen en formato base64
+ *                 example: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+ *     responses:
+ *       200:
+ *         description: Imagen de perfil actualizada exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.post('/:id/upload-profile-image', async (req, res) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64) {
+      return res.status(400).json({ error: 'imageBase64 es requerido' });
+    }
+
+    const user = await Usuario.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    user.profileImage = imageBase64;
+    await user.save();
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

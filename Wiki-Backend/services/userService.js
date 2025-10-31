@@ -181,6 +181,16 @@ class UserService extends IUserService {
     }
     return { message: 'Notificación eliminada' };
   }
+
+  async uploadProfileImage(userId, imageBase64) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    const updatedUser = await this.userRepository.update(userId, { profileImage: imageBase64 });
+    return updatedUser;
+  }
 }
 
 export default UserService;

@@ -54,6 +54,10 @@ class IUserService {
   async invite(fromUserId, toUserIds, resourceId) {
     throw new Error('Method not implemented');
   }
+
+  async uploadProfileImage(userId, imageBase64) {
+    throw new Error('Method not implemented');
+  }
 }
 
 export default IUserService;
