@@ -260,19 +260,33 @@ export default function DetailScreen() {
             <Text style={[styles.category, { fontSize: isMobile ? 14 : 16, marginBottom: isMobile ? 4 : 5 }]}>{recurso.category.name}</Text>
             <Text style={[styles.author, { fontSize: isMobile ? 12 : 14, marginBottom: isMobile ? 16 : 20 }]}>Por {recurso.author.username}</Text>
           </View>
-          {currentUserId && recurso.author._id !== currentUserId && (
+          {currentUserId && recurso.author._id === currentUserId ? (
             <TouchableOpacity
               style={[
-                styles.followButton,
-                isFollowing && styles.followingButton,
+                styles.editButton,
                 { paddingHorizontal: isMobile ? 12 : 15, paddingVertical: isMobile ? 6 : 8, borderRadius: isMobile ? 16 : 20 }
               ]}
-              onPress={handleFollow}
+              onPress={() => router.push(`/create?id=${recurso._id}`)}
             >
-              <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText, { fontSize: isMobile ? 12 : 14 }]}>
-                {isFollowing ? 'Siguiendo' : 'Seguir'}
+              <Text style={[styles.editButtonText, { fontSize: isMobile ? 12 : 14 }]}>
+                Editar
               </Text>
             </TouchableOpacity>
+          ) : (
+            currentUserId && recurso.author._id !== currentUserId && (
+              <TouchableOpacity
+                style={[
+                  styles.followButton,
+                  isFollowing && styles.followingButton,
+                  { paddingHorizontal: isMobile ? 12 : 15, paddingVertical: isMobile ? 6 : 8, borderRadius: isMobile ? 16 : 20 }
+                ]}
+                onPress={handleFollow}
+              >
+                <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText, { fontSize: isMobile ? 12 : 14 }]}>
+                  {isFollowing ? 'Siguiendo' : 'Seguir'}
+                </Text>
+              </TouchableOpacity>
+            )
           )}
         </View>
         {recurso.image && (
@@ -391,6 +405,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
+  editButton: {
+    backgroundColor: '#f39c12',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
   followButton: {
     backgroundColor: '#2e61ff',
     paddingHorizontal: 15,
@@ -399,6 +419,11 @@ const styles = StyleSheet.create({
   },
   followingButton: {
     backgroundColor: '#28a745',
+  },
+  editButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   followButtonText: {
     color: '#fff',
