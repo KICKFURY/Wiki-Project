@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { router } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as ImagePicker from 'expo-image-picker';
 
 const WelcomeScreen = ({ onStart }: { onStart: () => void }) => {
   return (
@@ -116,9 +117,30 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [profileImageUri, setProfileImageUri] = useState<string | null>(null);
+  const [profileImageBase64, setProfileImageBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const pickProfileImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso denegado', 'Necesitamos acceso a la galería para seleccionar una imagen de perfil');
+      return;
+    }
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [1, 1],
+      base64: true,
+    });
+    if (!res.canceled && res.assets?.[0]?.uri) {
+      setProfileImageUri(res.assets[0].uri);
+      setProfileImageBase64(res.assets[0].base64 || null);
+    }
+  };
 
   const handleRegisterPress = async () => {
     if (!dni || !username || !email || !password) {
@@ -129,10 +151,14 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
     setError('');
     setSuccess('');
     try {
+      const body: any = { dni, username, email, password, role: 'user' };
+      if (profileImageBase64) {
+        body.profileImage = profileImageBase64;
+      }
       const response = await fetch('http://localhost:4000/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dni, username, email, password, role: 'user' }),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (response.ok) {
@@ -141,6 +167,8 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
         setUsername('');
         setEmail('');
         setPassword('');
+        setProfileImageUri(null);
+        setProfileImageBase64(null);
       } else {
         setError(data.error || 'Error al registrar');
       }
@@ -191,6 +219,14 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
         value={password}
         onChangeText={setPassword}
       />
+
+      <TouchableOpacity style={styles.imagePicker} onPress={pickProfileImage}>
+        <Text style={{ color: '#2563EB', fontWeight: '600' }}>
+          {profileImageUri ? 'Cambiar imagen de perfil' : 'Seleccionar imagen de perfil'}
+        </Text>
+      </TouchableOpacity>
+      {profileImageUri ? <Image source={{ uri: profileImageUri }} style={styles.profileImagePreview} /> : null}
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
       {success ? <Text style={styles.success}>{success}</Text> : null}
       <View style={styles.buttonRow}>
@@ -280,4 +316,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     minWidth: 160,
   },
+  imagePicker: { marginTop: 10, paddingVertical: 10, alignItems: 'center' },
+  profileImagePreview: { width: 80, height: 80, borderRadius: 40, marginTop: 8, backgroundColor: '#eee' },
 });

@@ -48,12 +48,12 @@ class UserController extends IUserController {
 
     async create(req, res) {
         try {
-            const { dni, username, email, password, role } = req.body;
+            const { dni, username, email, password, role, profileImage } = req.body;
             if (!dni || !username || !email || !password || !role) {
                 return res.status(400).json({ error: 'dni, username, email, password y role son requeridos' });
             }
 
-            const user = await this.userService.create({ dni, username, email, password, role });
+            const user = await this.userService.create({ dni, username, email, password, role, profileImage });
             res.status(201).json(user);
         } catch (error) {
             if (error.message.includes('ya registrado')) {
