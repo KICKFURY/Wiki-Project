@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { NotificationsStackParamList } from '../AppNavigator';
+
+type NotificationsNavigationProp = StackNavigationProp<NotificationsStackParamList, 'Notifications'>;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -33,7 +37,7 @@ interface Notification {
 }
 
 export default function NotificationsScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NotificationsNavigationProp>();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);

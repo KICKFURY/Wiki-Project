@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Alert, ActivityIndicator, ScrollView, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { ProfileStackParamList } from '../AppNavigator';
+
+type ProfileNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -27,7 +31,7 @@ interface Recurso {
 }
 
 export default function ProfileScreen() {
-  // const navigation = useNavigation();
+  const navigation = useNavigation<ProfileNavigationProp>();
   const [user, setUser] = useState<User | null>(null);
   const [userRecursos, setUserRecursos] = useState<Recurso[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +41,7 @@ export default function ProfileScreen() {
       try {
         const userId = await AsyncStorage.getItem('userId');
         if (!userId) {
-          router.replace('/');
+          navigation.replace('Auth' as any);
           return;
         }
 
@@ -79,7 +83,7 @@ export default function ProfileScreen() {
             try {
               await AsyncStorage.removeItem('userId');
               // Navigate directly to login screen
-              router.replace('/');
+              navigation.replace('Auth' as any);
             } catch (error) {
               console.error('Error during logout:', error);
             }
@@ -173,7 +177,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/home')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil de usuario</Text>

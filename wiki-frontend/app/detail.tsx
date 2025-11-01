@@ -12,7 +12,11 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../AppNavigator';
+
+type DetailRouteProp = RouteProp<HomeStackParamList, 'Detail'>;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -36,9 +40,12 @@ interface Comment {
   isLikedByCurrentUser: boolean;
 }
 
+type DetailNavigationProp = StackNavigationProp<HomeStackParamList, 'Detail'>;
+
 export default function DetailScreen() {
-  const params = useLocalSearchParams();
-  const id = params.id as string;
+  const navigation = useNavigation<DetailNavigationProp>();
+  const route = useRoute<DetailRouteProp>();
+  const id = route.params?.id;
   const { width } = useWindowDimensions();
   const isMobile = width < 600;
 
@@ -266,7 +273,7 @@ export default function DetailScreen() {
                 styles.editButton,
                 { paddingHorizontal: isMobile ? 12 : 15, paddingVertical: isMobile ? 6 : 8, borderRadius: isMobile ? 16 : 20 }
               ]}
-              onPress={() => router.push(`/create?id=${recurso._id}`)}
+              onPress={() => navigation.navigate('Create', { id: recurso._id })}
             >
               <Text style={[styles.editButtonText, { fontSize: isMobile ? 12 : 14 }]}>
                 Editar

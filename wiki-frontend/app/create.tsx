@@ -21,11 +21,17 @@ import { Picker } from '@react-native-picker/picker';
 import { Input } from '@/components/ui/input';
 import InviteCollaboratorsModal from '@/components/InviteCollaboratorsModal';
 import { ENDPOINTS } from '../src/constants/endpoints';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { CreateStackParamList } from '../AppNavigator';
+
+type CreateNavigationProp = StackNavigationProp<CreateStackParamList, 'Create'>;
+type CreateRouteProp = RouteProp<CreateStackParamList, 'Create'>;
 
 export default function CreateScreen() {
-  const params = useLocalSearchParams();
-  const id = params.id as string | undefined;
+  const navigation = useNavigation<CreateNavigationProp>();
+  const route = useRoute<CreateRouteProp>();
+  const id = route.params?.id;
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
@@ -166,7 +172,7 @@ export default function CreateScreen() {
         if (!isEdit && result._id) {
           setEditingId(result._id);
         }
-        router.push('/home');
+        navigation.navigate('HomeTab' as any);
       }
     } catch (err) {
       console.error('Error al crear/actualizar', err);
@@ -226,7 +232,7 @@ export default function CreateScreen() {
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>{isEdit ? 'Actualizar' : 'Crear'}</Text>}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.btnOutline} onPress={() => router.push('/home')} disabled={loading}>
+            <TouchableOpacity style={styles.btnOutline} onPress={() => navigation.goBack()} disabled={loading}>
               <Text style={styles.btnOutlineText}>Cancelar</Text>
             </TouchableOpacity>
           </View>

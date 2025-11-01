@@ -12,7 +12,7 @@ export default function RootLayout() {
     <>
       <StatusBar style="auto" />
       <View style={{ flex: 1 }}>
-        <Stack />
+        <Stack screenOptions={{ headerShown: false }} />
         {showBottomBar && (
           <View style={styles.bottomBar}>
             <TouchableOpacity onPress={() => router.push('/home')}>

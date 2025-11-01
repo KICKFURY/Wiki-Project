@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,20 +37,23 @@ const LoginScreen = ({ onRegister, onLogin }: { onRegister: () => void; onLogin:
     setLoading(true);
     setError('');
     try {
+      console.log('Attempting login with:', { email, password });
       const response = await fetch('http://localhost:4000/api/usuarios/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
+      console.log('Response status:', response.status);
       const data = await response.json();
+      console.log('Response data:', data);
       if (response.ok) {
         await AsyncStorage.setItem('userId', data.user._id);
         onLogin(email, password);
-        router.push('/home');
       } else {
         setError(data.error || 'Credenciales inválidas');
       }
     } catch (err) {
+      console.log('Fetch error:', err);
       setError('Error de conexión');
     } finally {
       setLoading(false);
@@ -243,6 +246,8 @@ const RegisterScreen = ({ onBackToLogin }: { onBackToLogin: () => void }) => {
   );
 }
 
+
+
 export default function Index() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
@@ -251,9 +256,11 @@ export default function Index() {
     setShowLogin(true);
   };
 
+  const navigation = useNavigation();
+
   const handleLogin = (email: string, password: string) => {
     console.log('Login:', { email, password });
-
+    navigation.navigate('MainTab' as never);
   };
 
   const handleRegister = () => {

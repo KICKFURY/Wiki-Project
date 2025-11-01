@@ -15,7 +15,9 @@ import {
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../AppNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Recurso {
@@ -26,7 +28,10 @@ interface Recurso {
     image: string;
 }
 
+type HomeNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
+
 function HomeScreen() {
+    const navigation = useNavigation<HomeNavigationProp>();
     const { width } = useWindowDimensions();
     const isMobile = width < 600;
     const [recursos, setRecursos] = React.useState<Recurso[]>([]);
@@ -36,7 +41,6 @@ function HomeScreen() {
     const [selectedFilter, setSelectedFilter] = React.useState('Popular');
     const [searchQuery, setSearchQuery] = React.useState('');
     const filtros = ['Popular', 'Tecnologia', 'Educacion', 'Ciencia', 'Arte', 'Historia', 'Deportes', 'Otro'];
-    // const navigation = useNavigation(); // Not needed with expo-router
 
     React.useEffect(() => {
         checkLoginStatus();
@@ -47,7 +51,7 @@ function HomeScreen() {
         try {
             const userId = await AsyncStorage.getItem('userId');
             if (!userId) {
-                router.replace('/');
+                navigation.replace('Auth' as any);
             }
         } catch (error) {
             console.error('Error checking login status:', error);
@@ -89,7 +93,7 @@ function HomeScreen() {
             'Opciones',
             '¿Qué deseas hacer?',
             [
-                { text: 'Editar', onPress: () => router.push(`/create?id=${item.id}`) },
+                { text: 'Editar', onPress: () => navigation.navigate('Create', { id: item.id }) },
                 { text: 'Eliminar', onPress: () => handleDelete(item.id) },
                 { text: 'Cancelar', style: 'cancel' },
             ]
@@ -204,7 +208,7 @@ function HomeScreen() {
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         style={styles.card}
-                        onPress={() => router.push(`/detail?id=${item.id}`)}
+                        onPress={() => navigation.navigate('Detail', { id: item.id })}
                         onLongPress={() => showOptions(item)}
                         activeOpacity={0.8}
                     >

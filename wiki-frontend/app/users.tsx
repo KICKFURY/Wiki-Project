@@ -13,7 +13,11 @@ import {
 // @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { UsersStackParamList } from '../AppNavigator';
+
+type UsersNavigationProp = StackNavigationProp<UsersStackParamList, 'Users'>;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
@@ -31,7 +35,7 @@ interface User {
 }
 
 export default function UsersScreen() {
-  // const navigation = useNavigation();
+  const navigation = useNavigation<UsersNavigationProp>();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +49,7 @@ export default function UsersScreen() {
       if (userId) {
         await fetchUsers();
       } else {
-        router.replace('/');
+        navigation.replace('Auth' as any);
       }
     };
     initialize();
@@ -216,7 +220,7 @@ export default function UsersScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/home')}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <IconSymbol name="arrow.left" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Usuarios</Text>
